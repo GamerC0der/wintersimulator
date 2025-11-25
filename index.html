@@ -14,11 +14,58 @@
             padding: 0;
             height: 100vh;
             display: flex;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        .main-content {
+            flex: 1;
+            display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+        }
+        .right-sidebar {
+            width: 300px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .upgrades {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .upgrade {
+            background-color: black;
+            padding: 12px;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
             cursor: pointer;
-            overflow: hidden;
+            transition: all 0.2s;
+        }
+        .upgrade:hover:not(.purchased) {
+            transform: translateY(-2px);
+        }
+        .upgrade.purchased {
+            opacity: 0.5;
+            cursor: default;
+        }
+        .upgrade.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .upgrade-title {
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+        .upgrade-cost {
+            font-size: 12px;
+            opacity: 0.8;
         }
         .counter {
             font-family: 'Inter', sans-serif;
@@ -52,13 +99,27 @@
     </style>
 </head>
 <body>
-    <div class="counter" id="counter">0</div>
-    <img src="snow.png" alt="Snowball" class="snowball">
+    <div class="main-content">
+        <div class="counter" id="counter">0</div>
+        <img src="snow.png" alt="Snowball" class="snowball">
+    </div>
+    <div class="right-sidebar">
+        <div class="upgrades">
+            <div class="upgrade" id="mitten-upgrade">
+                <div class="upgrade-title">Mitten</div>
+                <div class="upgrade-cost" id="mitten-cost">Cost: 10</div>
+            </div>
+        </div>
+    </div>
     <script>
         let clickCount = 0;
+        let mittenPurchased = false;
+        let autoClickInterval = null;
         const counterElement = document.getElementById('counter');
+        const mittenUpgrade = document.getElementById('mitten-upgrade');
+        const mittenCostElement = document.getElementById('mitten-cost');
         
-        document.body.addEventListener('click', function(e) {
+        function incrementClick() {
             clickCount++;
             counterElement.textContent = clickCount;
             
@@ -73,7 +134,40 @@
             setTimeout(() => {
                 snowflake.remove();
             }, 3000);
+        }
+        
+        function updateUpgradeDisplay() {
+            if (mittenPurchased) {
+                mittenUpgrade.classList.add('purchased');
+                mittenCostElement.textContent = 'Purchased';
+            } else if (clickCount < 10) {
+                mittenUpgrade.classList.add('disabled');
+            } else {
+                mittenUpgrade.classList.remove('disabled');
+            }
+        }
+        
+        mittenUpgrade.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (mittenPurchased) return;
+            if (clickCount >= 10) {
+                clickCount -= 10;
+                counterElement.textContent = clickCount;
+                mittenPurchased = true;
+                mittenUpgrade.classList.add('purchased');
+                mittenCostElement.textContent = 'Purchased';
+                
+                // Start auto-clicker: 1 click per second
+                autoClickInterval = setInterval(incrementClick, 1000);
+            }
         });
+        
+        document.body.addEventListener('click', function(e) {
+            incrementClick();
+            updateUpgradeDisplay();
+        });
+        
+        updateUpgradeDisplay();
     </script>
 </body>
 </html>
