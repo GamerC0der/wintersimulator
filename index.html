@@ -81,6 +81,21 @@
             height: auto;
             position: relative;
             z-index: 1;
+            transition: transform 0.1s ease-out;
+        }
+        .snowball.clicked {
+            animation: snowballBounce 0.3s ease-out;
+        }
+        @keyframes snowballBounce {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(0.95);
+            }
+            100% {
+                transform: scale(1);
+            }
         }
         .mitten {
             position: absolute;
@@ -153,6 +168,7 @@
         const mittenUpgrade = document.getElementById('mitten-upgrade');
         const mittenCostElement = document.getElementById('mitten-cost');
         const snowballContainer = document.getElementById('snowball-container');
+        const snowball = document.querySelector('.snowball');
         
         function getMittenCost(count) {
             if (count < 10) {
@@ -268,6 +284,16 @@
                 updateAutoClick();
                 updateUpgradeDisplay();
             }
+        });
+        
+        snowball.addEventListener('click', function(e) {
+            e.stopPropagation();
+            snowball.classList.add('clicked');
+            setTimeout(() => {
+                snowball.classList.remove('clicked');
+            }, 300);
+            incrementClick();
+            updateUpgradeDisplay();
         });
         
         document.body.addEventListener('click', function(e) {
