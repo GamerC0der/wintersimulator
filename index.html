@@ -6,7 +6,7 @@
     <title>Winter Simulator</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <style>
         * {
             cursor: none !important;
@@ -42,6 +42,16 @@
             justify-content: center;
             align-items: center;
         }
+        .left-sidebar {
+            width: 600px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            padding: 20px;
+            box-sizing: border-box;
+        }
         .right-sidebar {
             width: 300px;
             background-color: rgba(255, 255, 255, 0.1);
@@ -61,7 +71,7 @@
             background-color: black;
             padding: 12px;
             color: white;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Montserrat', sans-serif;
             font-weight: 700;
             transition: all 0.2s;
         }
@@ -83,7 +93,7 @@
             opacity: 0.8;
         }
         .counter {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Montserrat', sans-serif;
             font-size: 48px;
             font-weight: 700;
             color: white;
@@ -159,6 +169,8 @@
     </style>
 </head>
 <body>
+    <div class="left-sidebar">
+    </div>
     <div class="main-content">
         <div class="counter" id="counter">0</div>
         <div style="position: relative; display: inline-block;" id="snowball-container">
@@ -244,7 +256,11 @@
             snowflake.src = 'snowflake.webp';
             snowflake.className = 'snowflake';
             snowflake.setAttribute('draggable', 'false');
-            snowflake.style.left = Math.random() * (window.innerWidth - 120) + 'px';
+            const leftSidebarWidth = 600;
+            const rightSidebarWidth = 300;
+            const minX = leftSidebarWidth;
+            const maxX = window.innerWidth - rightSidebarWidth - 120;
+            snowflake.style.left = Math.random() * (maxX - minX) + minX + 'px';
             snowflake.style.top = '-120px';
             snowflake.style.animationDuration = (Math.random() * 2 + 1) + 's';
             document.body.appendChild(snowflake);
