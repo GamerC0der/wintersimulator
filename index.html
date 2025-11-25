@@ -13,15 +13,48 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            cursor: pointer;
+            overflow: hidden;
         }
         .snowball {
             width: 360px;
             height: auto;
+            position: relative;
+            z-index: 1;
+        }
+        .snowflake {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            pointer-events: none;
+            animation: fall linear forwards;
+            z-index: 0;
+        }
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
         }
     </style>
 </head>
 <body>
     <img src="snow.png" alt="Snowball" class="snowball">
+    <script>
+        document.body.addEventListener('click', function(e) {
+            const snowflake = document.createElement('img');
+            snowflake.src = 'snowflake.webp';
+            snowflake.className = 'snowflake';
+            snowflake.style.left = Math.random() * (window.innerWidth - 120) + 'px';
+            snowflake.style.top = '-120px';
+            snowflake.style.animationDuration = (Math.random() * 2 + 1) + 's';
+            document.body.appendChild(snowflake);
+            
+            setTimeout(() => {
+                snowflake.remove();
+            }, 3000);
+        });
+    </script>
 </body>
 </html>
 
