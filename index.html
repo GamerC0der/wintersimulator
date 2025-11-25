@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Winter Simulator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700&display=swap" rel="stylesheet">
     <style>
         body {
             background-color: lightblue;
@@ -11,10 +14,20 @@
             padding: 0;
             height: 100vh;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             cursor: pointer;
             overflow: hidden;
+        }
+        .counter {
+            font-family: 'Inter', sans-serif;
+            font-size: 48px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 20px;
+            z-index: 2;
+            letter-spacing: 2px;
         }
         .snowball {
             width: 360px;
@@ -39,9 +52,16 @@
     </style>
 </head>
 <body>
+    <div class="counter" id="counter">0</div>
     <img src="snow.png" alt="Snowball" class="snowball">
     <script>
+        let clickCount = 0;
+        const counterElement = document.getElementById('counter');
+        
         document.body.addEventListener('click', function(e) {
+            clickCount++;
+            counterElement.textContent = clickCount;
+            
             const snowflake = document.createElement('img');
             snowflake.src = 'snowflake.webp';
             snowflake.className = 'snowflake';
