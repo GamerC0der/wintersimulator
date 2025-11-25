@@ -141,6 +141,7 @@
                 transform: rotate(360deg) translateX(200px) rotate(360deg);
             }
         }
+        
         .snowflake {
             position: absolute;
             width: 120px;
@@ -169,6 +170,10 @@
             <div class="upgrade" id="mitten-upgrade">
                 <div class="upgrade-title">Mitten</div>
                 <div class="upgrade-cost" id="mitten-cost">Cost: 10</div>
+            </div>
+            <div class="upgrade" id="snowman-upgrade">
+                <div class="upgrade-title">Snowman</div>
+                <div class="upgrade-cost" id="snowman-cost">Cost: 50</div>
             </div>
         </div>
     </div>
@@ -199,13 +204,17 @@
         
         let clickCount = 0;
         let mittenCount = 0;
+        let snowmanCount = 0;
         let autoClickInterval = null;
         let mittenHistory = [];
         const baseMittenCost = 10;
+        const baseSnowmanCost = 50;
         const maxMittens = 32;
         const counterElement = document.getElementById('counter');
         const mittenUpgrade = document.getElementById('mitten-upgrade');
         const mittenCostElement = document.getElementById('mitten-cost');
+        const snowmanUpgrade = document.getElementById('snowman-upgrade');
+        const snowmanCostElement = document.getElementById('snowman-cost');
         const snowballContainer = document.getElementById('snowball-container');
         const snowball = document.querySelector('.snowball');
         
@@ -221,6 +230,10 @@
                 return Math.ceil(costAt15 * Math.pow(1.25, count - 15));
             }
             return Infinity;
+        }
+        
+        function getSnowmanCost(count) {
+            return Math.ceil(baseSnowmanCost * Math.pow(1.15, count));
         }
         
         function incrementClick() {
@@ -291,18 +304,23 @@
             if (autoClickInterval) {
                 clearInterval(autoClickInterval);
             }
-            if (mittenCount > 0) {
-                const clickInterval = 1000 / mittenCount;
+            const totalCPS = mittenCount + (snowmanCount * 3);
+            if (totalCPS > 0) {
+                const clickInterval = 1000 / totalCPS;
                 autoClickInterval = setInterval(incrementClick, clickInterval);
             }
         }
         
+        function createSnowman() {
+            snowmanCount++;
+        }
+        
         function updateUpgradeDisplay() {
-            const currentCost = getMittenCost(mittenCount);
-            const canAfford = clickCount >= currentCost;
-            const canBuyMore = mittenCount < maxMittens;
+            const mittenCost = getMittenCost(mittenCount);
+            const canAffordMitten = clickCount >= mittenCost;
+            const canBuyMoreMittens = mittenCount < maxMittens;
             
-            if (!canAfford || !canBuyMore) {
+            if (!canAffordMitten || !canBuyMoreMittens) {
                 mittenUpgrade.classList.add('disabled');
             } else {
                 mittenUpgrade.classList.remove('disabled');
@@ -311,7 +329,23 @@
             if (mittenCount >= maxMittens) {
                 mittenCostElement.textContent = `Max: ${maxMittens} mittens`;
             } else {
-                mittenCostElement.textContent = `Cost: ${currentCost} (Owned: ${mittenCount})`;
+                mittenCostElement.textContent = `Cost: ${mittenCost} (Owned: ${mittenCount})`;
+            }
+            
+            const snowmanCost = getSnowmanCost(snowmanCount);
+            const canAffordSnowman = clickCount >= snowmanCost;
+            const hasMitten = mittenCount >= 1;
+            
+            if (!canAffordSnowman || !hasMitten) {
+                snowmanUpgrade.classList.add('disabled');
+            } else {
+                snowmanUpgrade.classList.remove('disabled');
+            }
+            
+            if (!hasMitten) {
+                snowmanCostElement.textContent = `Requires 1 mitten`;
+            } else {
+                snowmanCostElement.textContent = `Cost: ${snowmanCost} (Owned: ${snowmanCount}) - 3 CPS`;
             }
         }
         
@@ -322,6 +356,18 @@
                 clickCount -= currentCost;
                 counterElement.textContent = clickCount;
                 createMitten();
+                updateAutoClick();
+                updateUpgradeDisplay();
+            }
+        });
+        
+        snowmanUpgrade.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const currentCost = getSnowmanCost(snowmanCount);
+            if (clickCount >= currentCost && mittenCount >= 1) {
+                clickCount -= currentCost;
+                counterElement.textContent = clickCount;
+                createSnowman();
                 updateAutoClick();
                 updateUpgradeDisplay();
             }
@@ -338,8 +384,10 @@
         });
         
         document.body.addEventListener('click', function(e) {
-            incrementClick();
-            updateUpgradeDisplay();
+            if (!e.target.closest('.upgrade')) {
+                incrementClick();
+                updateUpgradeDisplay();
+            }
         });
         
         updateUpgradeDisplay();
