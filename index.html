@@ -8,14 +8,32 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700&display=swap" rel="stylesheet">
     <style>
+        * {
+            cursor: none !important;
+        }
+        img {
+            user-select: none;
+            -webkit-user-drag: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            pointer-events: auto;
+        }
         body {
             background-color: lightblue;
             margin: 0;
             padding: 0;
             height: 100vh;
             display: flex;
-            cursor: pointer;
             overflow: hidden;
+        }
+        .custom-cursor {
+            position: fixed;
+            width: 96px;
+            height: 144px;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            image-rendering: pixelated;
         }
         .main-content {
             flex: 1;
@@ -45,7 +63,6 @@
             color: white;
             font-family: 'Inter', sans-serif;
             font-weight: 700;
-            cursor: pointer;
             transition: all 0.2s;
         }
         .upgrade:hover:not(.purchased) {
@@ -53,11 +70,9 @@
         }
         .upgrade.purchased {
             opacity: 0.5;
-            cursor: default;
         }
         .upgrade.disabled {
             opacity: 0.5;
-            cursor: not-allowed;
         }
         .upgrade-title {
             font-size: 16px;
@@ -157,7 +172,31 @@
             </div>
         </div>
     </div>
+    <img src="cursor.webp" alt="" class="custom-cursor" id="customCursor">
     <script>
+        document.querySelectorAll('img').forEach(img => {
+            img.setAttribute('draggable', 'false');
+        });
+        const customCursor = document.getElementById('customCursor');
+        let mouseX = 0;
+        let mouseY = 0;
+        let cursorX = 0;
+        let cursorY = 0;
+        
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+        
+        function animateCursor() {
+            cursorX += (mouseX - cursorX) * 0.1;
+            cursorY += (mouseY - cursorY) * 0.1;
+            customCursor.style.left = cursorX + 'px';
+            customCursor.style.top = cursorY + 'px';
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+        
         let clickCount = 0;
         let mittenCount = 0;
         let autoClickInterval = null;
@@ -191,6 +230,7 @@
             const snowflake = document.createElement('img');
             snowflake.src = 'snowflake.webp';
             snowflake.className = 'snowflake';
+            snowflake.setAttribute('draggable', 'false');
             snowflake.style.left = Math.random() * (window.innerWidth - 120) + 'px';
             snowflake.style.top = '-120px';
             snowflake.style.animationDuration = (Math.random() * 2 + 1) + 's';
@@ -220,6 +260,7 @@
             
             while (mittens.length < visibleCount) {
                 const mitten = document.createElement('img');
+                mitten.setAttribute('draggable', 'false');
                 let mittenType;
                 if (mittenHistory.length >= 3 && 
                     mittenHistory[mittenHistory.length - 1] === mittenHistory[mittenHistory.length - 2] &&
