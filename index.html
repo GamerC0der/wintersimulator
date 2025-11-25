@@ -82,6 +82,35 @@
             position: relative;
             z-index: 1;
         }
+        .mitten {
+            position: absolute;
+            width: 80px;
+            height: auto;
+            pointer-events: none;
+            z-index: 2;
+            top: 50%;
+            left: 50%;
+            margin-left: -40px;
+            margin-top: -40px;
+            animation: orbit 3s linear infinite;
+        }
+        @keyframes orbit {
+            0% {
+                transform: rotate(0deg) translateX(200px) rotate(0deg);
+            }
+            25% {
+                transform: rotate(90deg) translateX(200px) rotate(90deg);
+            }
+            50% {
+                transform: rotate(180deg) translateX(200px) rotate(180deg);
+            }
+            75% {
+                transform: rotate(270deg) translateX(200px) rotate(270deg);
+            }
+            100% {
+                transform: rotate(360deg) translateX(200px) rotate(360deg);
+            }
+        }
         .snowflake {
             position: absolute;
             width: 120px;
@@ -101,7 +130,9 @@
 <body>
     <div class="main-content">
         <div class="counter" id="counter">0</div>
-        <img src="snow.png" alt="Snowball" class="snowball">
+        <div style="position: relative; display: inline-block;" id="snowball-container">
+            <img src="snow.png" alt="Snowball" class="snowball">
+        </div>
     </div>
     <div class="right-sidebar">
         <div class="upgrades">
@@ -113,11 +144,28 @@
     </div>
     <script>
         let clickCount = 0;
-        let mittenPurchased = false;
+        let mittenCount = 0;
         let autoClickInterval = null;
+        const baseMittenCost = 10;
+        const maxMittens = 32;
         const counterElement = document.getElementById('counter');
         const mittenUpgrade = document.getElementById('mitten-upgrade');
         const mittenCostElement = document.getElementById('mitten-cost');
+        const snowballContainer = document.getElementById('snowball-container');
+        
+        function getMittenCost(count) {
+            if (count < 10) {
+                return Math.ceil(baseMittenCost * Math.pow(1.05, count));
+            } else if (count < 16) {
+                const costAt9 = baseMittenCost * Math.pow(1.05, 9);
+                return Math.ceil(costAt9 * Math.pow(1.1, count - 9));
+            } else if (count < 32) {
+                const costAt9 = baseMittenCost * Math.pow(1.05, 9);
+                const costAt15 = costAt9 * Math.pow(1.1, 6);
+                return Math.ceil(costAt15 * Math.pow(1.25, count - 15));
+            }
+            return Infinity;
+        }
         
         function incrementClick() {
             clickCount++;
@@ -136,29 +184,78 @@
             }, 3000);
         }
         
+        function getVisibleMittenCount(total) {
+            if (total <= 4) return total;
+            if (total <= 8) return Math.ceil(total / 2);
+            if (total <= 16) return Math.ceil(total / 4);
+            if (total <= 32) return Math.ceil(total / 8);
+            return 16; // max visible at 32+ total
+        }
+        
+        function updateMittenDisplay() {
+            const visibleCount = getVisibleMittenCount(mittenCount);
+            let mittens = snowballContainer.querySelectorAll('.mitten');
+            
+            // Remove excess mittens
+            while (mittens.length > visibleCount) {
+                mittens[mittens.length - 1].remove();
+                mittens = snowballContainer.querySelectorAll('.mitten');
+            }
+            
+            // Add missing mittens
+            while (mittens.length < visibleCount) {
+                const mitten = document.createElement('img');
+                mitten.src = Math.random() < 0.5 ? 'mitten.webp' : 'mitten2.png';
+                mitten.className = 'mitten';
+                mitten.style.animationDelay = (mittens.length * 0.5) + 's';
+                snowballContainer.appendChild(mitten);
+                mittens = snowballContainer.querySelectorAll('.mitten');
+            }
+        }
+        
+        function createMitten() {
+            if (mittenCount >= maxMittens) return;
+            mittenCount++;
+            updateMittenDisplay();
+        }
+        
+        function updateAutoClick() {
+            if (autoClickInterval) {
+                clearInterval(autoClickInterval);
+            }
+            if (mittenCount > 0) {
+                const clickInterval = 1000 / mittenCount;
+                autoClickInterval = setInterval(incrementClick, clickInterval);
+            }
+        }
+        
         function updateUpgradeDisplay() {
-            if (mittenPurchased) {
-                mittenUpgrade.classList.add('purchased');
-                mittenCostElement.textContent = 'Purchased';
-            } else if (clickCount < 10) {
+            const currentCost = getMittenCost(mittenCount);
+            const canAfford = clickCount >= currentCost;
+            const canBuyMore = mittenCount < maxMittens;
+            
+            if (!canAfford || !canBuyMore) {
                 mittenUpgrade.classList.add('disabled');
             } else {
                 mittenUpgrade.classList.remove('disabled');
+            }
+            
+            if (mittenCount >= maxMittens) {
+                mittenCostElement.textContent = `Max: ${maxMittens} mittens`;
+            } else {
+                mittenCostElement.textContent = `Cost: ${currentCost} (Owned: ${mittenCount})`;
             }
         }
         
         mittenUpgrade.addEventListener('click', function(e) {
             e.stopPropagation();
-            if (mittenPurchased) return;
-            if (clickCount >= 10) {
-                clickCount -= 10;
+            const currentCost = getMittenCost(mittenCount);
+            if (clickCount >= currentCost && mittenCount < maxMittens) {
+                clickCount -= currentCost;
                 counterElement.textContent = clickCount;
-                mittenPurchased = true;
-                mittenUpgrade.classList.add('purchased');
-                mittenCostElement.textContent = 'Purchased';
-                
-                // Start auto-clicker: 1 click per second
-                autoClickInterval = setInterval(incrementClick, 1000);
+                createMitten();
+                updateAutoClick();
+                updateUpgradeDisplay();
             }
         });
         
