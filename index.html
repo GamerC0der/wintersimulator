@@ -146,6 +146,7 @@
         let clickCount = 0;
         let mittenCount = 0;
         let autoClickInterval = null;
+        let mittenHistory = [];
         const baseMittenCost = 10;
         const maxMittens = 32;
         const counterElement = document.getElementById('counter');
@@ -189,23 +190,33 @@
             if (total <= 8) return Math.ceil(total / 2);
             if (total <= 16) return Math.ceil(total / 4);
             if (total <= 32) return Math.ceil(total / 8);
-            return 16; // max visible at 32+ total
+            return 16; 
         }
         
         function updateMittenDisplay() {
             const visibleCount = getVisibleMittenCount(mittenCount);
             let mittens = snowballContainer.querySelectorAll('.mitten');
             
-            // Remove excess mittens
             while (mittens.length > visibleCount) {
                 mittens[mittens.length - 1].remove();
                 mittens = snowballContainer.querySelectorAll('.mitten');
             }
             
-            // Add missing mittens
             while (mittens.length < visibleCount) {
                 const mitten = document.createElement('img');
-                mitten.src = Math.random() < 0.5 ? 'mitten.webp' : 'mitten2.png';
+                let mittenType;
+                if (mittenHistory.length >= 3 && 
+                    mittenHistory[mittenHistory.length - 1] === mittenHistory[mittenHistory.length - 2] &&
+                    mittenHistory[mittenHistory.length - 2] === mittenHistory[mittenHistory.length - 3]) {
+                    mittenType = mittenHistory[mittenHistory.length - 1] === 'mitten.webp' ? 'mitten2.png' : 'mitten.webp';
+                } else {
+                    mittenType = Math.random() < 0.5 ? 'mitten.webp' : 'mitten2.png';
+                }
+                mitten.src = mittenType;
+                mittenHistory.push(mittenType);
+                if (mittenHistory.length > 3) {
+                    mittenHistory.shift();
+                }
                 mitten.className = 'mitten';
                 mitten.style.animationDelay = (mittens.length * 0.5) + 's';
                 snowballContainer.appendChild(mitten);
