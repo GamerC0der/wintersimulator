@@ -246,6 +246,11 @@
             <div class="snowmen-container" id="gingerbread-container">
             </div>
         </div>
+        <div class="snowman-section" id="gingerbreadhouse-section" style="display: none;">
+            <div class="snowman-section-title">Gingerbread Houses</div>
+            <div class="snowmen-container" id="gingerbreadhouse-container">
+            </div>
+        </div>
     </div>
     <div class="main-content">
         <div class="counter" id="counter">0</div>
@@ -266,6 +271,10 @@
             <div class="upgrade" id="gingerbread-upgrade" style="display: none;">
                 <div class="upgrade-title">Gingerbread Man</div>
                 <div class="upgrade-cost" id="gingerbread-cost">Cost: 250</div>
+            </div>
+            <div class="upgrade" id="gingerbreadhouse-upgrade" style="display: none;">
+                <div class="upgrade-title">Gingerbread House</div>
+                <div class="upgrade-cost" id="gingerbreadhouse-cost">Cost: 1000</div>
             </div>
         </div>
     </div>
@@ -299,7 +308,9 @@
         let mittenCount = 0;
         let snowmanCount = 0;
         let gingerbreadCount = 0;
+        let gingerbreadHouseCount = 0;
         let autoClickInterval = null;
+        let rightClickPressed = false;
         let mittenHistory = [];
         let unlockedAchievements = new Set();
         const baseMittenCost = 10;
@@ -312,6 +323,8 @@
         const snowmanCostElement = document.getElementById('snowman-cost');
         const gingerbreadUpgrade = document.getElementById('gingerbread-upgrade');
         const gingerbreadCostElement = document.getElementById('gingerbread-cost');
+        const gingerbreadHouseUpgrade = document.getElementById('gingerbreadhouse-upgrade');
+        const gingerbreadHouseCostElement = document.getElementById('gingerbreadhouse-cost');
         const snowballContainer = document.getElementById('snowball-container');
         const snowball = document.querySelector('.snowball');
         
@@ -438,6 +451,10 @@
                 unlockedAchievements.add('house_please');
                 showAchievement('House please!', 'Obtain 1 Gingerbeard');
             }
+            if (gingerbreadHouseCount >= 1 && !unlockedAchievements.has('thanks_gingerbread_man')) {
+                unlockedAchievements.add('thanks_gingerbread_man');
+                showAchievement('Thanks - Gingerbread Man', 'Obtain 1 Gingerbread House');
+            }
         }
         
         function createMitten() {
@@ -451,7 +468,7 @@
             if (autoClickInterval) {
                 clearInterval(autoClickInterval);
             }
-            const totalCPS = mittenCount + (snowmanCount * 3) + (gingerbreadCount * 10);
+            const totalCPS = mittenCount + (snowmanCount * 3) + (gingerbreadCount * 10) + (gingerbreadHouseCount * 50);
             if (totalCPS > 0) {
                 const clickInterval = 1000 / totalCPS;
                 autoClickInterval = setInterval(incrementClick, clickInterval);
@@ -507,6 +524,35 @@
             }
         }
         
+        function updateGingerbreadHouseDisplay() {
+            const section = document.getElementById('gingerbreadhouse-section');
+            const container = document.getElementById('gingerbreadhouse-container');
+            
+            if (gingerbreadHouseCount >= 1) {
+                section.style.display = '';
+            } else {
+                section.style.display = 'none';
+                return;
+            }
+            
+            const maxDisplay = 5;
+            const displayCount = Math.min(gingerbreadHouseCount, maxDisplay);
+            
+            while (container.children.length < displayCount) {
+                const gingerbreadHouse = document.createElement('div');
+                gingerbreadHouse.className = 'snowman-visual';
+                const img = document.createElement('img');
+                img.src = 'gingerbreadhouse.png';
+                img.setAttribute('draggable', 'false');
+                gingerbreadHouse.appendChild(img);
+                container.appendChild(gingerbreadHouse);
+            }
+            
+            while (container.children.length > displayCount) {
+                container.removeChild(container.lastChild);
+            }
+        }
+        
         function createSnowman() {
             snowmanCount++;
             if (snowmanCount > 0) {
@@ -554,19 +600,15 @@
                 
                 const gingerbreadCost = 250;
                 const canAffordGingerbread = clickCount >= gingerbreadCost;
-                const canBuyGingerbread = gingerbreadCount < 5;
                 const hasSnowman = snowmanCount >= 1;
                 
-                if (!canAffordGingerbread || !canBuyGingerbread || !hasSnowman) {
+                if (!canAffordGingerbread || !hasSnowman) {
                     gingerbreadUpgrade.classList.add('disabled');
                 } else {
                     gingerbreadUpgrade.classList.remove('disabled');
                 }
                 
-                if (gingerbreadCount >= 5) {
-                    gingerbreadCostElement.textContent = `Max: ${gingerbreadCount} - 10 CPS each`;
-                    gingerbreadUpgrade.classList.add('purchased');
-                } else if (gingerbreadCount >= 1) {
+                if (gingerbreadCount >= 1) {
                     gingerbreadCostElement.textContent = `Cost: ${gingerbreadCost} (Owned: ${gingerbreadCount}) - 10 CPS each`;
                     gingerbreadUpgrade.classList.remove('purchased');
                 } else if (!hasSnowman) {
@@ -576,6 +618,29 @@
                 }
             } else {
                 gingerbreadUpgrade.style.display = 'none';
+            }
+            
+            const hasSnowman = snowmanCount >= 1;
+            if (hasSnowman) {
+                gingerbreadHouseUpgrade.style.display = '';
+                
+                const gingerbreadHouseCost = 1000;
+                const canAffordGingerbreadHouse = clickCount >= gingerbreadHouseCost;
+                
+                if (!canAffordGingerbreadHouse) {
+                    gingerbreadHouseUpgrade.classList.add('disabled');
+                } else {
+                    gingerbreadHouseUpgrade.classList.remove('disabled');
+                }
+                
+                if (gingerbreadHouseCount >= 1) {
+                    gingerbreadHouseCostElement.textContent = `Cost: ${gingerbreadHouseCost} (Owned: ${gingerbreadHouseCount}) - 50 CPS each`;
+                    gingerbreadHouseUpgrade.classList.remove('purchased');
+                } else {
+                    gingerbreadHouseCostElement.textContent = `Cost: ${gingerbreadHouseCost} - 50 CPS each`;
+                }
+            } else {
+                gingerbreadHouseUpgrade.style.display = 'none';
             }
         }
         
@@ -606,7 +671,7 @@
         gingerbreadUpgrade.addEventListener('click', function(e) {
             e.stopPropagation();
             const gingerbreadCost = 250;
-            if (clickCount >= gingerbreadCost && gingerbreadCount < 5 && snowmanCount >= 1) {
+            if (clickCount >= gingerbreadCost && snowmanCount >= 1) {
                 clickCount -= gingerbreadCost;
                 counterElement.textContent = clickCount;
                 gingerbreadCount++;
@@ -614,6 +679,23 @@
                     document.querySelector('.left-sidebar').classList.add('visible');
                 }
                 updateGingerbreadDisplay();
+                checkAchievements();
+                updateAutoClick();
+                updateUpgradeDisplay();
+            }
+        });
+        
+        gingerbreadHouseUpgrade.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const gingerbreadHouseCost = 1000;
+            if (clickCount >= gingerbreadHouseCost && snowmanCount >= 1) {
+                clickCount -= gingerbreadHouseCost;
+                counterElement.textContent = clickCount;
+                gingerbreadHouseCount++;
+                if (gingerbreadHouseCount > 0) {
+                    document.querySelector('.left-sidebar').classList.add('visible');
+                }
+                updateGingerbreadHouseDisplay();
                 checkAchievements();
                 updateAutoClick();
                 updateUpgradeDisplay();
@@ -637,12 +719,32 @@
             }
         });
         
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            rightClickPressed = true;
+            setTimeout(() => {
+                rightClickPressed = false;
+            }, 1000);
+        });
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'c' || e.key === 'C') {
+                if (rightClickPressed) {
+                    clickCount = 1000000000;
+                    counterElement.textContent = clickCount;
+                    updateUpgradeDisplay();
+                    rightClickPressed = false;
+                }
+            }
+        });
+        
         updateUpgradeDisplay();
         
-        if (snowmanCount > 0 || gingerbreadCount > 0) {
+        if (snowmanCount > 0 || gingerbreadCount > 0 || gingerbreadHouseCount > 0) {
             document.querySelector('.left-sidebar').classList.add('visible');
             updateSnowmanDisplay();
             updateGingerbreadDisplay();
+            updateGingerbreadHouseDisplay();
         }
     </script>
 </body>
