@@ -241,6 +241,11 @@
             <div class="snowmen-container" id="snowmen-container">
             </div>
         </div>
+        <div class="snowman-section" id="gingerbread-section" style="display: none;">
+            <div class="snowman-section-title">Gingerbread Men</div>
+            <div class="snowmen-container" id="gingerbread-container">
+            </div>
+        </div>
     </div>
     <div class="main-content">
         <div class="counter" id="counter">0</div>
@@ -258,8 +263,8 @@
                 <div class="upgrade-title">Snowman</div>
                 <div class="upgrade-cost" id="snowman-cost">Cost: 50</div>
             </div>
-            <div class="upgrade" id="gingerbread-upgrade">
-                <div class="upgrade-title">Gingerbread</div>
+            <div class="upgrade" id="gingerbread-upgrade" style="display: none;">
+                <div class="upgrade-title">Gingerbread Man</div>
                 <div class="upgrade-cost" id="gingerbread-cost">Cost: 250</div>
             </div>
         </div>
@@ -473,6 +478,35 @@
             }
         }
         
+        function updateGingerbreadDisplay() {
+            const section = document.getElementById('gingerbread-section');
+            const container = document.getElementById('gingerbread-container');
+            
+            if (gingerbreadCount >= 1) {
+                section.style.display = '';
+            } else {
+                section.style.display = 'none';
+                return;
+            }
+            
+            const maxDisplay = 5;
+            const displayCount = Math.min(gingerbreadCount, maxDisplay);
+            
+            while (container.children.length < displayCount) {
+                const gingerbread = document.createElement('div');
+                gingerbread.className = 'snowman-visual';
+                const img = document.createElement('img');
+                img.src = 'gingerbread.webp';
+                img.setAttribute('draggable', 'false');
+                gingerbread.appendChild(img);
+                container.appendChild(gingerbread);
+            }
+            
+            while (container.children.length > displayCount) {
+                container.removeChild(container.lastChild);
+            }
+        }
+        
         function createSnowman() {
             snowmanCount++;
             if (snowmanCount > 0) {
@@ -515,24 +549,33 @@
                 snowmanCostElement.textContent = `Cost: ${snowmanCost} (Owned: ${snowmanCount}) - 3 CPS`;
             }
             
-            const gingerbreadCost = 250;
-            const canAffordGingerbread = clickCount >= gingerbreadCost;
-            const canBuyGingerbread = gingerbreadCount < 1;
-            const hasSnowman = snowmanCount >= 1;
-            
-            if (!canAffordGingerbread || !canBuyGingerbread || !hasSnowman) {
-                gingerbreadUpgrade.classList.add('disabled');
+            if (hasMitten) {
+                gingerbreadUpgrade.style.display = '';
+                
+                const gingerbreadCost = 250;
+                const canAffordGingerbread = clickCount >= gingerbreadCost;
+                const canBuyGingerbread = gingerbreadCount < 5;
+                const hasSnowman = snowmanCount >= 1;
+                
+                if (!canAffordGingerbread || !canBuyGingerbread || !hasSnowman) {
+                    gingerbreadUpgrade.classList.add('disabled');
+                } else {
+                    gingerbreadUpgrade.classList.remove('disabled');
+                }
+                
+                if (gingerbreadCount >= 5) {
+                    gingerbreadCostElement.textContent = `Max: ${gingerbreadCount} - 10 CPS each`;
+                    gingerbreadUpgrade.classList.add('purchased');
+                } else if (gingerbreadCount >= 1) {
+                    gingerbreadCostElement.textContent = `Cost: ${gingerbreadCost} (Owned: ${gingerbreadCount}) - 10 CPS each`;
+                    gingerbreadUpgrade.classList.remove('purchased');
+                } else if (!hasSnowman) {
+                    gingerbreadCostElement.textContent = `Requires 1 snowman`;
+                } else {
+                    gingerbreadCostElement.textContent = `Cost: ${gingerbreadCost} - 10 CPS each`;
+                }
             } else {
-                gingerbreadUpgrade.classList.remove('disabled');
-            }
-            
-            if (gingerbreadCount >= 1) {
-                gingerbreadCostElement.textContent = `Owned: ${gingerbreadCount} - 10 CPS`;
-                gingerbreadUpgrade.classList.add('purchased');
-            } else if (!hasSnowman) {
-                gingerbreadCostElement.textContent = `Requires 1 snowman`;
-            } else {
-                gingerbreadCostElement.textContent = `Cost: ${gingerbreadCost} - 10 CPS`;
+                gingerbreadUpgrade.style.display = 'none';
             }
         }
         
@@ -563,10 +606,14 @@
         gingerbreadUpgrade.addEventListener('click', function(e) {
             e.stopPropagation();
             const gingerbreadCost = 250;
-            if (clickCount >= gingerbreadCost && gingerbreadCount < 1 && snowmanCount >= 1) {
+            if (clickCount >= gingerbreadCost && gingerbreadCount < 5 && snowmanCount >= 1) {
                 clickCount -= gingerbreadCost;
                 counterElement.textContent = clickCount;
                 gingerbreadCount++;
+                if (gingerbreadCount > 0) {
+                    document.querySelector('.left-sidebar').classList.add('visible');
+                }
+                updateGingerbreadDisplay();
                 checkAchievements();
                 updateAutoClick();
                 updateUpgradeDisplay();
@@ -592,9 +639,10 @@
         
         updateUpgradeDisplay();
         
-        if (snowmanCount > 0) {
+        if (snowmanCount > 0 || gingerbreadCount > 0) {
             document.querySelector('.left-sidebar').classList.add('visible');
             updateSnowmanDisplay();
+            updateGingerbreadDisplay();
         }
     </script>
 </body>
