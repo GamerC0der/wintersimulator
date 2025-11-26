@@ -312,6 +312,25 @@
             font-size: 14px;
             opacity: 0.8;
         }
+        .rebirth-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10001;
+            background-color: black;
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            pointer-events: auto;
+            display: none;
+        }
+        .rebirth-button.visible {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -361,6 +380,7 @@
     <img src="cursor.webp" alt="" class="custom-cursor" id="customCursor">
     <div class="achievement-container" id="achievement-container"></div>
     <button class="achievements-button" id="achievements-button">Achievements</button>
+    <button class="rebirth-button" id="rebirth-button">Rebirth</button>
     <div class="achievements-popover" id="achievements-popover">
         <div class="achievements-popover-header">Achievements</div>
         <input type="text" class="achievements-search" id="achievements-search" placeholder="Search achievements...">
@@ -412,6 +432,8 @@
         };
         const baseMittenCost = 10;
         const baseSnowmanCost = 50;
+        const baseGingerbreadCost = 250;
+        const baseGingerbreadHouseCost = 1000;
         const maxMittens = 32;
         const counterElement = document.getElementById('counter');
         const mittenUpgrade = document.getElementById('mitten-upgrade');
@@ -441,6 +463,14 @@
         
         function getSnowmanCost(count) {
             return Math.ceil(baseSnowmanCost * Math.pow(1.15, count));
+        }
+        
+        function getGingerbreadCost(count) {
+            return Math.ceil(baseGingerbreadCost * Math.pow(1.03, count));
+        }
+        
+        function getGingerbreadHouseCost(count) {
+            return Math.ceil(baseGingerbreadHouseCost * Math.pow(1.06, count));
         }
         
         function incrementClick() {
@@ -599,6 +629,14 @@
             }
         });
         
+        const rebirthButton = document.getElementById('rebirth-button');
+        rebirthButton.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (confirm('Are you sure you want to rebirth? This will reset all your progress.')) {
+                rebirth();
+            }
+        });
+        
         function checkAchievements() {
             if (mittenCount >= 1 && !unlockedAchievements.has('getting_mittens')) {
                 unlockedAchievements.add('getting_mittens');
@@ -631,6 +669,48 @@
             if (clickCount >= 1000 && !unlockedAchievements.has('rebirths_unlocked')) {
                 unlockedAchievements.add('rebirths_unlocked');
                 showAchievement('Rebirths Unlocked', 'Obtain 1000 Snowballs');
+            }
+            updateRebirthButton();
+        }
+        
+        function updateRebirthButton() {
+            const rebirthButton = document.getElementById('rebirth-button');
+            if (clickCount >= 1000) {
+                rebirthButton.classList.add('visible');
+            } else {
+                rebirthButton.classList.remove('visible');
+            }
+        }
+        
+        function rebirth() {
+            if (clickCount < 1000) return;
+            
+            // Reset all game state
+            clickCount = 0;
+            mittenCount = 0;
+            snowmanCount = 0;
+            gingerbreadCount = 0;
+            gingerbreadHouseCount = 0;
+            
+            // Clear auto-click interval
+            if (autoClickInterval) {
+                clearInterval(autoClickInterval);
+                autoClickInterval = null;
+            }
+            
+            // Reset displays
+            counterElement.textContent = clickCount;
+            updateMittenDisplay();
+            updateSnowmanDisplay();
+            updateGingerbreadDisplay();
+            updateGingerbreadHouseDisplay();
+            updateUpgradeDisplay();
+            updateAutoClick();
+            updateRebirthButton();
+            
+            // Hide left sidebar if empty
+            if (snowmanCount === 0 && gingerbreadCount === 0 && gingerbreadHouseCount === 0) {
+                document.querySelector('.left-sidebar').classList.remove('visible');
             }
         }
         
@@ -775,7 +855,7 @@
             if (hasMitten) {
                 gingerbreadUpgrade.style.display = '';
                 
-                const gingerbreadCost = 250;
+                const gingerbreadCost = getGingerbreadCost(gingerbreadCount);
                 const canAffordGingerbread = clickCount >= gingerbreadCost;
                 const hasSnowman = snowmanCount >= 1;
                 
@@ -801,7 +881,7 @@
             if (hasSnowman) {
                 gingerbreadHouseUpgrade.style.display = '';
                 
-                const gingerbreadHouseCost = 1000;
+                const gingerbreadHouseCost = getGingerbreadHouseCost(gingerbreadHouseCount);
                 const canAffordGingerbreadHouse = clickCount >= gingerbreadHouseCost;
                 
                 if (!canAffordGingerbreadHouse) {
@@ -847,7 +927,7 @@
         
         gingerbreadUpgrade.addEventListener('click', function(e) {
             e.stopPropagation();
-            const gingerbreadCost = 250;
+            const gingerbreadCost = getGingerbreadCost(gingerbreadCount);
             if (clickCount >= gingerbreadCost && snowmanCount >= 1) {
                 clickCount -= gingerbreadCost;
                 counterElement.textContent = clickCount;
@@ -864,7 +944,7 @@
         
         gingerbreadHouseUpgrade.addEventListener('click', function(e) {
             e.stopPropagation();
-            const gingerbreadHouseCost = 1000;
+            const gingerbreadHouseCost = getGingerbreadHouseCost(gingerbreadHouseCount);
             if (clickCount >= gingerbreadHouseCost && snowmanCount >= 1) {
                 clickCount -= gingerbreadHouseCost;
                 counterElement.textContent = clickCount;
@@ -887,12 +967,14 @@
             }, 300);
             incrementClick();
             updateUpgradeDisplay();
+            updateRebirthButton();
         });
         
         document.body.addEventListener('click', function(e) {
-            if (!e.target.closest('.upgrade')) {
+            if (!e.target.closest('.upgrade') && !e.target.closest('.rebirth-button')) {
                 incrementClick();
                 updateUpgradeDisplay();
+                updateRebirthButton();
             }
         });
         
@@ -917,6 +999,7 @@
         
         updateUpgradeDisplay();
         updateAchievementsButton();
+        updateRebirthButton();
         
         if (snowmanCount > 0 || gingerbreadCount > 0 || gingerbreadHouseCount > 0) {
             document.querySelector('.left-sidebar').classList.add('visible');
