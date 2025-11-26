@@ -77,6 +77,18 @@
             font-family: 'Montserrat', sans-serif;
             font-weight: 700;
             transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .upgrade-content {
+            flex: 1;
+        }
+        .upgrade-image {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            margin-left: 12px;
         }
         .upgrade:hover:not(.purchased) {
             transform: translateY(-2px);
@@ -94,6 +106,37 @@
         .upgrade-cost {
             font-size: 12px;
             opacity: 0.8;
+        }
+        .upgrades-divider {
+            width: 100%;
+            height: 1px;
+            background-color: rgba(255, 255, 255, 0.2);
+            margin: 20px 0;
+            display: none;
+        }
+        .upgrades-divider.visible {
+            display: block;
+        }
+        .gingerbread-upgrades-section {
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .gingerbread-upgrades-section.visible {
+            display: flex;
+        }
+        .gingerbread-upgrades-title {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 18px;
+            color: white;
+            margin-bottom: 12px;
+        }
+        .gingerbread-upgrades-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
         }
         .counter {
             font-family: 'Montserrat', sans-serif;
@@ -114,6 +157,30 @@
         .snowball.clicked {
             animation: snowballBounce 0.3s ease-out;
         }
+        .snowball.crack {
+            animation: snowballCrack 2s ease-out forwards;
+        }
+        body.crack-shake {
+            animation: screenShake 2s ease-out forwards;
+        }
+        .crack-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        .crack-particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 1);
+            opacity: 0;
+        }
         @keyframes snowballBounce {
             0% {
                 transform: scale(1);
@@ -123,6 +190,64 @@
             }
             100% {
                 transform: scale(1);
+            }
+        }
+        @keyframes snowballCrack {
+            0% {
+                transform: scale(1) rotate(0deg);
+                filter: brightness(1) contrast(1);
+            }
+            20% {
+                transform: scale(1.05) rotate(3deg);
+                filter: brightness(1.1) contrast(1.1);
+            }
+            40% {
+                transform: scale(0.95) rotate(-5deg);
+                filter: brightness(0.7) contrast(1.3);
+            }
+            60% {
+                transform: scale(0.92) rotate(4deg);
+                filter: brightness(0.5) contrast(1.5);
+            }
+            80% {
+                transform: scale(0.88) rotate(-3deg);
+                filter: brightness(0.4) contrast(1.7);
+            }
+            100% {
+                transform: scale(0.85) rotate(0deg);
+                filter: brightness(0.3) contrast(2);
+            }
+        }
+        @keyframes screenShake {
+            0%, 100% {
+                transform: translate(0, 0);
+            }
+            10% {
+                transform: translate(-2px, -1px) rotate(0.5deg);
+            }
+            20% {
+                transform: translate(2px, 1px) rotate(-0.5deg);
+            }
+            30% {
+                transform: translate(-3px, -2px) rotate(0.8deg);
+            }
+            40% {
+                transform: translate(3px, 2px) rotate(-0.8deg);
+            }
+            50% {
+                transform: translate(-4px, -3px) rotate(1deg);
+            }
+            60% {
+                transform: translate(4px, 3px) rotate(-1deg);
+            }
+            70% {
+                transform: translate(-3px, -2px) rotate(0.8deg);
+            }
+            80% {
+                transform: translate(3px, 2px) rotate(-0.8deg);
+            }
+            90% {
+                transform: translate(-1px, -1px) rotate(0.3deg);
             }
         }
         .mitten {
@@ -331,6 +456,102 @@
         .rebirth-button.visible {
             display: block;
         }
+        .cookies-display {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 10001;
+            background-color: black;
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            padding: 12px 24px;
+            border-radius: 4px;
+            pointer-events: auto;
+            display: none;
+        }
+        .cookies-display.visible {
+            display: block;
+        }
+        .cookies-display-title {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 4px;
+        }
+        .cookies-display-count {
+            font-size: 24px;
+        }
+        .rebirth-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10002;
+            background-color: black;
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+            width: 400px;
+            border-radius: 4px;
+            padding: 24px;
+            box-sizing: border-box;
+            display: none;
+            flex-direction: column;
+            pointer-events: auto;
+        }
+        .rebirth-modal.visible {
+            display: flex;
+        }
+        .rebirth-modal-header {
+            font-weight: 700;
+            font-size: 24px;
+            margin-bottom: 16px;
+        }
+        .rebirth-modal-content {
+            font-size: 16px;
+            margin-bottom: 24px;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+        .rebirth-modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+        .rebirth-modal-button {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            padding: 10px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .rebirth-modal-button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        .rebirth-modal-button.confirm {
+            background-color: rgba(255, 0, 0, 0.3);
+            border-color: rgba(255, 0, 0, 0.5);
+        }
+        .rebirth-modal-button.confirm:hover {
+            background-color: rgba(255, 0, 0, 0.4);
+        }
+        .rebirth-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 10001;
+            display: none;
+            pointer-events: auto;
+        }
+        .rebirth-modal-overlay.visible {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -360,27 +581,71 @@
     <div class="right-sidebar">
         <div class="upgrades">
             <div class="upgrade" id="mitten-upgrade">
-                <div class="upgrade-title">Mitten</div>
-                <div class="upgrade-cost" id="mitten-cost">Cost: 10</div>
+                <div class="upgrade-content">
+                    <div class="upgrade-title">Mitten</div>
+                    <div class="upgrade-cost" id="mitten-cost">Cost: 10</div>
+                </div>
             </div>
             <div class="upgrade" id="snowman-upgrade">
-                <div class="upgrade-title">Snowman</div>
-                <div class="upgrade-cost" id="snowman-cost">Cost: 50</div>
+                <div class="upgrade-content">
+                    <div class="upgrade-title">Snowman</div>
+                    <div class="upgrade-cost" id="snowman-cost">Cost: 50</div>
+                </div>
             </div>
             <div class="upgrade" id="gingerbread-upgrade" style="display: none;">
-                <div class="upgrade-title">Gingerbread Man</div>
-                <div class="upgrade-cost" id="gingerbread-cost">Cost: 250</div>
+                <div class="upgrade-content">
+                    <div class="upgrade-title">Gingerbread Man</div>
+                    <div class="upgrade-cost" id="gingerbread-cost">Cost: 250</div>
+                </div>
             </div>
             <div class="upgrade" id="gingerbreadhouse-upgrade" style="display: none;">
-                <div class="upgrade-title">Gingerbread House</div>
-                <div class="upgrade-cost" id="gingerbreadhouse-cost">Cost: 1000</div>
+                <div class="upgrade-content">
+                    <div class="upgrade-title">Gingerbread House</div>
+                    <div class="upgrade-cost" id="gingerbreadhouse-cost">Cost: 1000</div>
+                </div>
+            </div>
+        </div>
+        <div class="upgrades-divider" id="gingerbread-upgrades-divider"></div>
+        <div class="gingerbread-upgrades-section" id="gingerbread-upgrades-section">
+            <div class="gingerbread-upgrades-title">Gingerbread Upgrades</div>
+            <div class="upgrades">
+                <div class="upgrade" id="golden-mitten-upgrade">
+                    <div class="upgrade-content">
+                        <div class="upgrade-title">Golden Mitten</div>
+                        <div class="upgrade-cost" id="golden-mitten-cost">Cost: 1 Gingerbread Cookie</div>
+                    </div>
+                    <img src="golden_mitten.png" alt="Golden Mitten" class="upgrade-image">
+                </div>
+                <div class="upgrade" id="golden-snowman-upgrade">
+                    <div class="upgrade-content">
+                        <div class="upgrade-title">Golden Snowman</div>
+                        <div class="upgrade-cost" id="golden-snowman-cost">Cost: 3 Gingerbread Cookies</div>
+                    </div>
+                    <img src="golden_snowman.png" alt="Golden Snowman" class="upgrade-image">
+                </div>
             </div>
         </div>
     </div>
     <img src="cursor.webp" alt="" class="custom-cursor" id="customCursor">
     <div class="achievement-container" id="achievement-container"></div>
+    <div class="crack-particles" id="crack-particles"></div>
     <button class="achievements-button" id="achievements-button">Achievements</button>
     <button class="rebirth-button" id="rebirth-button">Rebirth</button>
+    <div class="cookies-display" id="cookies-display">
+        <div class="cookies-display-title">Gingerbread Cookies:</div>
+        <div class="cookies-display-count" id="cookies-count">0</div>
+    </div>
+    <div class="rebirth-modal-overlay" id="rebirth-modal-overlay"></div>
+    <div class="rebirth-modal" id="rebirth-modal">
+        <div class="rebirth-modal-header">Rebirth</div>
+        <div class="rebirth-modal-content">
+            Are you sure you want to rebirth? This will reset all your progress including snowballs and upgrades.
+        </div>
+        <div class="rebirth-modal-actions">
+            <button class="rebirth-modal-button" id="rebirth-cancel">Cancel</button>
+            <button class="rebirth-modal-button confirm" id="rebirth-confirm">Rebirth</button>
+        </div>
+    </div>
     <div class="achievements-popover" id="achievements-popover">
         <div class="achievements-popover-header">Achievements</div>
         <input type="text" class="achievements-search" id="achievements-search" placeholder="Search achievements...">
@@ -416,6 +681,9 @@
         let gingerbreadCount = 0;
         let gingerbreadHouseCount = 0;
         let autoClickInterval = null;
+        let gingerbreadCookies = 0;
+        let goldenMittenPurchased = false;
+        let goldenSnowmanPurchased = false;
         let rightClickPressed = false;
         let mittenHistory = [];
         let activeSnowflakes = 0;
@@ -630,11 +898,40 @@
         });
         
         const rebirthButton = document.getElementById('rebirth-button');
+        const rebirthModal = document.getElementById('rebirth-modal');
+        const rebirthModalOverlay = document.getElementById('rebirth-modal-overlay');
+        const rebirthCancel = document.getElementById('rebirth-cancel');
+        const rebirthConfirm = document.getElementById('rebirth-confirm');
+        
+        function showRebirthModal() {
+            rebirthModal.classList.add('visible');
+            rebirthModalOverlay.classList.add('visible');
+        }
+        
+        function hideRebirthModal() {
+            rebirthModal.classList.remove('visible');
+            rebirthModalOverlay.classList.remove('visible');
+        }
+        
         rebirthButton.addEventListener('click', function(e) {
             e.stopPropagation();
-            if (confirm('Are you sure you want to rebirth? This will reset all your progress.')) {
-                rebirth();
-            }
+            showRebirthModal();
+        });
+        
+        rebirthCancel.addEventListener('click', function(e) {
+            e.stopPropagation();
+            hideRebirthModal();
+        });
+        
+        rebirthConfirm.addEventListener('click', function(e) {
+            e.stopPropagation();
+            rebirth();
+            hideRebirthModal();
+        });
+        
+        rebirthModalOverlay.addEventListener('click', function(e) {
+            e.stopPropagation();
+            hideRebirthModal();
         });
         
         function checkAchievements() {
@@ -682,36 +979,207 @@
             }
         }
         
+        function calculateCookiesEarned(totalSnowballs, mittens, snowmen, gingerbreadMen, gingerbreadHouses) {
+            let cookies = 0;
+            
+            const snowballThresholds = [
+                { threshold: 1000, cookies: 1 },
+                { threshold: 10000, cookies: 4 },
+                { threshold: 25000, cookies: 3 },
+                { threshold: 30000, cookies: 2 },
+                { threshold: 50000, cookies: 5 },
+                { threshold: 75000, cookies: 6 },
+                { threshold: 100000, cookies: 2 },
+                { threshold: 250000, cookies: 3 },
+                { threshold: 500000, cookies: 8 },
+                { threshold: 550000, cookies: 1 },
+                { threshold: 600000, cookies: 2 },
+                { threshold: 750000, cookies: 5 },
+                { threshold: 800000, cookies: 1 },
+                { threshold: 900000, cookies: 3 },
+                { threshold: 910000, cookies: 1 },
+                { threshold: 950000, cookies: 4 },
+                { threshold: 975000, cookies: 1 },
+                { threshold: 1000000, cookies: 7 },
+                { threshold: 1200000, cookies: 3 },
+                { threshold: 1300000, cookies: 1 },
+                { threshold: 1400000, cookies: 1 },
+                { threshold: 1600000, cookies: 2 },
+                { threshold: 1750000, cookies: 4 },
+                { threshold: 1800000, cookies: 1 },
+                { threshold: 1900000, cookies: 2 },
+                { threshold: 2000000, cookies: 5 },
+                { threshold: 2200000, cookies: 3 },
+                { threshold: 2400000, cookies: 4 },
+                { threshold: 2500000, cookies: 1 },
+                { threshold: 2700000, cookies: 3 },
+                { threshold: 2750000, cookies: 1 },
+                { threshold: 2800000, cookies: 1 },
+                { threshold: 2900000, cookies: 2 },
+                { threshold: 3000000, cookies: 4 },
+                { threshold: 3300000, cookies: 5 },
+                { threshold: 3500000, cookies: 2 },
+                { threshold: 3600000, cookies: 3 },
+                { threshold: 3610000, cookies: 1 },
+                { threshold: 3630000, cookies: 1 },
+                { threshold: 3650000, cookies: 1 },
+                { threshold: 3700000, cookies: 2 },
+                { threshold: 3800000, cookies: 3 },
+                { threshold: 3950000, cookies: 1 },
+                { threshold: 4000000, cookies: 2 },
+                { threshold: 5000000, cookies: 3 }
+            ];
+            
+            for (const { threshold, cookies: cookieReward } of snowballThresholds) {
+                if (totalSnowballs >= threshold) {
+                    cookies += cookieReward;
+                }
+            }
+            
+            cookies += Math.floor(mittens / 100);
+            cookies += Math.floor(snowmen / 10);
+            cookies += Math.floor(gingerbreadMen / 5);
+            cookies += Math.floor(gingerbreadHouses / 3);
+            
+            if (gingerbreadHouses >= 10) {
+                cookies += 1;
+            }
+            if (gingerbreadHouses >= 25) {
+                cookies += 2;
+            }
+            
+            return cookies;
+        }
+        
+        function updateGingerbreadUpgradesDisplay() {
+            const goldenMittenUpgrade = document.getElementById('golden-mitten-upgrade');
+            const goldenMittenCost = document.getElementById('golden-mitten-cost');
+            if (goldenMittenUpgrade) {
+                if (goldenMittenPurchased) {
+                    goldenMittenUpgrade.classList.add('purchased');
+                    goldenMittenUpgrade.classList.remove('disabled');
+                    if (goldenMittenCost) goldenMittenCost.textContent = 'Purchased';
+                } else if (gingerbreadCookies >= 1) {
+                    goldenMittenUpgrade.classList.remove('purchased');
+                    goldenMittenUpgrade.classList.remove('disabled');
+                    if (goldenMittenCost) goldenMittenCost.textContent = 'Cost: 1 Gingerbread Cookie';
+                } else {
+                    goldenMittenUpgrade.classList.remove('purchased');
+                    goldenMittenUpgrade.classList.add('disabled');
+                    if (goldenMittenCost) goldenMittenCost.textContent = 'Cost: 1 Gingerbread Cookie';
+                }
+            }
+            
+            const goldenSnowmanUpgrade = document.getElementById('golden-snowman-upgrade');
+            const goldenSnowmanCost = document.getElementById('golden-snowman-cost');
+            if (goldenSnowmanUpgrade) {
+                if (goldenSnowmanPurchased) {
+                    goldenSnowmanUpgrade.classList.add('purchased');
+                    goldenSnowmanUpgrade.classList.remove('disabled');
+                    if (goldenSnowmanCost) goldenSnowmanCost.textContent = 'Purchased';
+                } else if (gingerbreadCookies >= 3) {
+                    goldenSnowmanUpgrade.classList.remove('purchased');
+                    goldenSnowmanUpgrade.classList.remove('disabled');
+                    if (goldenSnowmanCost) goldenSnowmanCost.textContent = 'Cost: 3 Gingerbread Cookies';
+                } else {
+                    goldenSnowmanUpgrade.classList.remove('purchased');
+                    goldenSnowmanUpgrade.classList.add('disabled');
+                    if (goldenSnowmanCost) goldenSnowmanCost.textContent = 'Cost: 3 Gingerbread Cookies';
+                }
+            }
+        }
+        
+        function updateCookiesDisplay() {
+            const cookiesDisplay = document.getElementById('cookies-display');
+            const gingerbreadSection = document.getElementById('gingerbread-upgrades-section');
+            const gingerbreadDivider = document.getElementById('gingerbread-upgrades-divider');
+            document.getElementById('cookies-count').textContent = gingerbreadCookies;
+            if (gingerbreadCookies > 0) {
+                cookiesDisplay.classList.add('visible');
+                gingerbreadSection.classList.add('visible');
+                gingerbreadDivider.classList.add('visible');
+            } else {
+                cookiesDisplay.classList.remove('visible');
+                gingerbreadSection.classList.remove('visible');
+                gingerbreadDivider.classList.remove('visible');
+            }
+            updateGingerbreadUpgradesDisplay();
+        }
+        
         function rebirth() {
             if (clickCount < 1000) return;
             
-            // Reset all game state
-            clickCount = 0;
-            mittenCount = 0;
-            snowmanCount = 0;
-            gingerbreadCount = 0;
-            gingerbreadHouseCount = 0;
+            document.querySelector('.left-sidebar').classList.remove('visible');
+            document.getElementById('achievements-button').classList.remove('visible');
+            document.getElementById('rebirth-button').classList.remove('visible');
             
-            // Clear auto-click interval
-            if (autoClickInterval) {
-                clearInterval(autoClickInterval);
-                autoClickInterval = null;
+            const particlesContainer = document.getElementById('crack-particles');
+            const body = document.body;
+            
+            body.classList.add('crack-shake');
+            snowball.classList.add('crack');
+            
+            particlesContainer.innerHTML = '';
+            for (let i = 0; i < 60; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'crack-particle';
+                const angle = (Math.PI * 2 * i) / 60 + Math.random() * 0.3;
+                const distance = 100 + Math.random() * 200;
+                const startX = window.innerWidth / 2;
+                const startY = window.innerHeight / 2;
+                const endX = startX + Math.cos(angle) * distance;
+                const endY = startY + Math.sin(angle) * distance;
+                const delay = Math.random() * 0.5;
+                const duration = 1.5 + Math.random() * 0.5;
+                
+                particle.style.left = startX + 'px';
+                particle.style.top = startY + 'px';
+                
+                const keyframes = [
+                    { transform: 'translate(0, 0) scale(0)', opacity: 0, offset: 0 },
+                    { transform: 'translate(0, 0) scale(1)', opacity: 1, offset: delay / duration },
+                    { transform: `translate(${endX - startX}px, ${endY - startY}px) scale(1.5)`, opacity: 0.8, offset: (delay + 0.3) / duration },
+                    { transform: `translate(${endX - startX}px, ${endY - startY}px) scale(0)`, opacity: 0, offset: 1 }
+                ];
+                
+                particle.animate(keyframes, {
+                    duration: duration * 1000,
+                    easing: 'ease-out',
+                    fill: 'forwards'
+                });
+                
+                particlesContainer.appendChild(particle);
             }
             
-            // Reset displays
-            counterElement.textContent = clickCount;
-            updateMittenDisplay();
-            updateSnowmanDisplay();
-            updateGingerbreadDisplay();
-            updateGingerbreadHouseDisplay();
-            updateUpgradeDisplay();
-            updateAutoClick();
-            updateRebirthButton();
+            const cookiesEarned = calculateCookiesEarned(clickCount, mittenCount, snowmanCount, gingerbreadCount, gingerbreadHouseCount);
+            gingerbreadCookies += cookiesEarned;
             
-            // Hide left sidebar if empty
-            if (snowmanCount === 0 && gingerbreadCount === 0 && gingerbreadHouseCount === 0) {
-                document.querySelector('.left-sidebar').classList.remove('visible');
-            }
+            setTimeout(() => {
+                clickCount = 0;
+                mittenCount = 0;
+                snowmanCount = 0;
+                gingerbreadCount = 0;
+                gingerbreadHouseCount = 0;
+                
+                if (autoClickInterval) {
+                    clearInterval(autoClickInterval);
+                    autoClickInterval = null;
+                }
+                
+                counterElement.textContent = clickCount;
+                updateMittenDisplay();
+                updateSnowmanDisplay();
+                updateGingerbreadDisplay();
+                updateGingerbreadHouseDisplay();
+                updateUpgradeDisplay();
+                updateAutoClick();
+                updateRebirthButton();
+                updateCookiesDisplay();
+                
+                snowball.classList.remove('crack');
+                body.classList.remove('crack-shake');
+                particlesContainer.innerHTML = '';
+            }, 2000);
         }
         
         function createMitten() {
@@ -725,7 +1193,9 @@
             if (autoClickInterval) {
                 clearInterval(autoClickInterval);
             }
-            const totalCPS = mittenCount + (snowmanCount * 3) + (gingerbreadCount * 10) + (gingerbreadHouseCount * 50);
+            const mittenMultiplier = goldenMittenPurchased ? 2 : 1;
+            const snowmanMultiplier = goldenSnowmanPurchased ? 2 : 1;
+            const totalCPS = (mittenCount * mittenMultiplier) + (snowmanCount * 3 * snowmanMultiplier) + (gingerbreadCount * 10) + (gingerbreadHouseCount * 50);
             if (totalCPS > 0) {
                 const clickInterval = 1000 / totalCPS;
                 autoClickInterval = setInterval(incrementClick, clickInterval);
@@ -959,6 +1429,28 @@
             }
         });
         
+        const goldenMittenUpgrade = document.getElementById('golden-mitten-upgrade');
+        goldenMittenUpgrade.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (!goldenMittenPurchased && gingerbreadCookies >= 1) {
+                gingerbreadCookies -= 1;
+                goldenMittenPurchased = true;
+                updateCookiesDisplay();
+                updateAutoClick();
+            }
+        });
+        
+        const goldenSnowmanUpgrade = document.getElementById('golden-snowman-upgrade');
+        goldenSnowmanUpgrade.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (!goldenSnowmanPurchased && gingerbreadCookies >= 3) {
+                gingerbreadCookies -= 3;
+                goldenSnowmanPurchased = true;
+                updateCookiesDisplay();
+                updateAutoClick();
+            }
+        });
+        
         snowball.addEventListener('click', function(e) {
             e.stopPropagation();
             snowball.classList.add('clicked');
@@ -1000,6 +1492,7 @@
         updateUpgradeDisplay();
         updateAchievementsButton();
         updateRebirthButton();
+        updateCookiesDisplay();
         
         if (snowmanCount > 0 || gingerbreadCount > 0 || gingerbreadHouseCount > 0) {
             document.querySelector('.left-sidebar').classList.add('visible');
