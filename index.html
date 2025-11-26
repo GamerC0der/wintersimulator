@@ -31,7 +31,7 @@
             width: 68px;
             height: auto;
             pointer-events: none;
-            z-index: 9999;
+            z-index: 10003;
             transform: translate(-50%, -50%);
             image-rendering: pixelated;
         }
@@ -232,6 +232,86 @@
             font-size: 14px;
             opacity: 0.8;
         }
+        .achievements-button {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10001;
+            background-color: black;
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            pointer-events: auto;
+            display: none;
+        }
+        .achievements-button.visible {
+            display: block;
+        }
+        .achievements-popover {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10002;
+            background-color: black;
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+            width: 400px;
+            max-height: 500px;
+            border-radius: 4px;
+            padding: 20px;
+            box-sizing: border-box;
+            display: none;
+            flex-direction: column;
+            pointer-events: auto;
+        }
+        .achievements-popover.visible {
+            display: flex;
+        }
+        .achievements-popover-header {
+            font-weight: 700;
+            font-size: 20px;
+            margin-bottom: 16px;
+        }
+        .achievements-search {
+            width: 100%;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            margin-bottom: 16px;
+            box-sizing: border-box;
+        }
+        .achievements-search::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        .achievements-list {
+            overflow-y: auto;
+            flex: 1;
+        }
+        .achievement-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        .achievement-item-title {
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+        .achievement-item-description {
+            font-size: 14px;
+            opacity: 0.8;
+        }
     </style>
 </head>
 <body>
@@ -280,6 +360,12 @@
     </div>
     <img src="cursor.webp" alt="" class="custom-cursor" id="customCursor">
     <div class="achievement-container" id="achievement-container"></div>
+    <button class="achievements-button" id="achievements-button">Achievements</button>
+    <div class="achievements-popover" id="achievements-popover">
+        <div class="achievements-popover-header">Achievements</div>
+        <input type="text" class="achievements-search" id="achievements-search" placeholder="Search achievements...">
+        <div class="achievements-list" id="achievements-list"></div>
+    </div>
     <script>
         document.querySelectorAll('img').forEach(img => {
             img.setAttribute('draggable', 'false');
@@ -312,7 +398,18 @@
         let autoClickInterval = null;
         let rightClickPressed = false;
         let mittenHistory = [];
+        let activeSnowflakes = 0;
         let unlockedAchievements = new Set();
+        const achievementData = {
+            'getting_mittens': { title: 'Getting Mittens!', description: 'Own 1 Mitten' },
+            'out_of_hand': { title: 'Out of Hand', description: 'Obtain 3 Mittens' },
+            'jolly_happy_soul': { title: 'A Jolly Happy Soul', description: 'Obtain 1 Snowman' },
+            'snowmen': { title: 'Snowmen', description: 'Obtain 2 Snowmen' },
+            'disappearing': { title: 'Help! I\'m disappearing.', description: 'Obtain 6 Snowmen' },
+            'house_please': { title: 'House please!', description: 'Obtain 1 Gingerbeard' },
+            'thanks_gingerbread_man': { title: 'Thanks - Gingerbread Man', description: 'Obtain 1 Gingerbread House' },
+            'rebirths_unlocked': { title: 'Rebirths Unlocked', description: 'Obtain 1000 Snowballs' }
+        };
         const baseMittenCost = 10;
         const baseSnowmanCost = 50;
         const maxMittens = 32;
@@ -349,23 +446,28 @@
         function incrementClick() {
             clickCount++;
             counterElement.textContent = clickCount;
+            checkAchievements();
             
-            const snowflake = document.createElement('img');
-            snowflake.src = 'snowflake.webp';
-            snowflake.className = 'snowflake';
-            snowflake.setAttribute('draggable', 'false');
-            const leftSidebarWidth = 600;
-            const rightSidebarWidth = 300;
-            const minX = leftSidebarWidth;
-            const maxX = window.innerWidth - rightSidebarWidth - 120;
-            snowflake.style.left = Math.random() * (maxX - minX) + minX + 'px';
-            snowflake.style.top = '-120px';
-            snowflake.style.animationDuration = (Math.random() * 2 + 1) + 's';
-            document.body.appendChild(snowflake);
-            
-            setTimeout(() => {
-                snowflake.remove();
-            }, 3000);
+            if (activeSnowflakes < 50) {
+                activeSnowflakes++;
+                const snowflake = document.createElement('img');
+                snowflake.src = 'snowflake.webp';
+                snowflake.className = 'snowflake';
+                snowflake.setAttribute('draggable', 'false');
+                const leftSidebarWidth = 600;
+                const rightSidebarWidth = 300;
+                const minX = leftSidebarWidth;
+                const maxX = window.innerWidth - rightSidebarWidth - 120;
+                snowflake.style.left = Math.random() * (maxX - minX) + minX + 'px';
+                snowflake.style.top = '-120px';
+                snowflake.style.animationDuration = (Math.random() * 2 + 1) + 's';
+                document.body.appendChild(snowflake);
+                
+                setTimeout(() => {
+                    snowflake.remove();
+                    activeSnowflakes--;
+                }, 3000);
+            }
         }
         
         function getVisibleMittenCount(total) {
@@ -417,14 +519,85 @@
                 <div class="achievement-description">${description}</div>
             `;
             container.appendChild(achievement);
+            updateAchievementsButton();
             
             setTimeout(() => {
                 achievement.classList.add('fade-out');
                 setTimeout(() => {
                     achievement.remove();
+                    updateAchievementsButton();
                 }, 500);
             }, 3000);
         }
+        
+        function updateAchievementsButton() {
+            const container = document.getElementById('achievement-container');
+            const button = document.getElementById('achievements-button');
+            if (container.children.length > 0) {
+                button.classList.remove('visible');
+            } else {
+                button.classList.add('visible');
+            }
+        }
+        
+        function renderAchievementsList(searchTerm = '') {
+            const list = document.getElementById('achievements-list');
+            list.innerHTML = '';
+            
+            const filtered = Array.from(unlockedAchievements).filter(id => {
+                if (!searchTerm) return true;
+                const achievement = achievementData[id];
+                if (!achievement) return false;
+                const searchLower = searchTerm.toLowerCase();
+                return achievement.title.toLowerCase().includes(searchLower) ||
+                       achievement.description.toLowerCase().includes(searchLower);
+            });
+            
+            if (filtered.length === 0) {
+                const empty = document.createElement('div');
+                empty.style.padding = '12px';
+                empty.style.opacity = '0.5';
+                empty.textContent = unlockedAchievements.size === 0 ? 'No achievements earned yet' : 'No achievements match your search';
+                list.appendChild(empty);
+                return;
+            }
+            
+            filtered.forEach(id => {
+                const achievement = achievementData[id];
+                if (!achievement) return;
+                
+                const item = document.createElement('div');
+                item.className = 'achievement-item';
+                item.innerHTML = `
+                    <div class="achievement-item-title">${achievement.title}</div>
+                    <div class="achievement-item-description">${achievement.description}</div>
+                `;
+                list.appendChild(item);
+            });
+        }
+        
+        const achievementsButton = document.getElementById('achievements-button');
+        const achievementsPopover = document.getElementById('achievements-popover');
+        const achievementsSearch = document.getElementById('achievements-search');
+        
+        achievementsButton.addEventListener('click', function(e) {
+            e.stopPropagation();
+            achievementsPopover.classList.toggle('visible');
+            if (achievementsPopover.classList.contains('visible')) {
+                renderAchievementsList();
+                achievementsSearch.focus();
+            }
+        });
+        
+        achievementsSearch.addEventListener('input', function(e) {
+            renderAchievementsList(e.target.value);
+        });
+        
+        document.addEventListener('click', function(e) {
+            if (!achievementsPopover.contains(e.target) && !achievementsButton.contains(e.target)) {
+                achievementsPopover.classList.remove('visible');
+            }
+        });
         
         function checkAchievements() {
             if (mittenCount >= 1 && !unlockedAchievements.has('getting_mittens')) {
@@ -454,6 +627,10 @@
             if (gingerbreadHouseCount >= 1 && !unlockedAchievements.has('thanks_gingerbread_man')) {
                 unlockedAchievements.add('thanks_gingerbread_man');
                 showAchievement('Thanks - Gingerbread Man', 'Obtain 1 Gingerbread House');
+            }
+            if (clickCount >= 1000 && !unlockedAchievements.has('rebirths_unlocked')) {
+                unlockedAchievements.add('rebirths_unlocked');
+                showAchievement('Rebirths Unlocked', 'Obtain 1000 Snowballs');
             }
         }
         
@@ -739,6 +916,7 @@
         });
         
         updateUpgradeDisplay();
+        updateAchievementsButton();
         
         if (snowmanCount > 0 || gingerbreadCount > 0 || gingerbreadHouseCount > 0) {
             document.querySelector('.left-sidebar').classList.add('visible');
