@@ -258,6 +258,10 @@
                 <div class="upgrade-title">Snowman</div>
                 <div class="upgrade-cost" id="snowman-cost">Cost: 50</div>
             </div>
+            <div class="upgrade" id="gingerbread-upgrade">
+                <div class="upgrade-title">Gingerbread</div>
+                <div class="upgrade-cost" id="gingerbread-cost">Cost: 250</div>
+            </div>
         </div>
     </div>
     <img src="cursor.webp" alt="" class="custom-cursor" id="customCursor">
@@ -289,6 +293,7 @@
         let clickCount = 0;
         let mittenCount = 0;
         let snowmanCount = 0;
+        let gingerbreadCount = 0;
         let autoClickInterval = null;
         let mittenHistory = [];
         let unlockedAchievements = new Set();
@@ -300,6 +305,8 @@
         const mittenCostElement = document.getElementById('mitten-cost');
         const snowmanUpgrade = document.getElementById('snowman-upgrade');
         const snowmanCostElement = document.getElementById('snowman-cost');
+        const gingerbreadUpgrade = document.getElementById('gingerbread-upgrade');
+        const gingerbreadCostElement = document.getElementById('gingerbread-cost');
         const snowballContainer = document.getElementById('snowball-container');
         const snowball = document.querySelector('.snowball');
         
@@ -410,6 +417,22 @@
                 unlockedAchievements.add('out_of_hand');
                 showAchievement('Out of Hand', 'Obtain 3 Mittens');
             }
+            if (snowmanCount >= 1 && !unlockedAchievements.has('jolly_happy_soul')) {
+                unlockedAchievements.add('jolly_happy_soul');
+                showAchievement('A Jolly Happy Soul', 'Obtain 1 Snowman');
+            }
+            if (snowmanCount >= 2 && !unlockedAchievements.has('snowmen')) {
+                unlockedAchievements.add('snowmen');
+                showAchievement('Snowmen', 'Obtain 2 Snowmen');
+            }
+            if (snowmanCount >= 6 && !unlockedAchievements.has('disappearing')) {
+                unlockedAchievements.add('disappearing');
+                showAchievement('Help! I\'m disappearing.', 'Obtain 6 Snowmen');
+            }
+            if (gingerbreadCount >= 1 && !unlockedAchievements.has('house_please')) {
+                unlockedAchievements.add('house_please');
+                showAchievement('House please!', 'Obtain 1 Gingerbeard');
+            }
         }
         
         function createMitten() {
@@ -423,7 +446,7 @@
             if (autoClickInterval) {
                 clearInterval(autoClickInterval);
             }
-            const totalCPS = mittenCount + (snowmanCount * 3);
+            const totalCPS = mittenCount + (snowmanCount * 3) + (gingerbreadCount * 10);
             if (totalCPS > 0) {
                 const clickInterval = 1000 / totalCPS;
                 autoClickInterval = setInterval(incrementClick, clickInterval);
@@ -456,6 +479,7 @@
                 document.querySelector('.left-sidebar').classList.add('visible');
             }
             updateSnowmanDisplay();
+            checkAchievements();
         }
         
         function updateUpgradeDisplay() {
@@ -490,6 +514,26 @@
             } else {
                 snowmanCostElement.textContent = `Cost: ${snowmanCost} (Owned: ${snowmanCount}) - 3 CPS`;
             }
+            
+            const gingerbreadCost = 250;
+            const canAffordGingerbread = clickCount >= gingerbreadCost;
+            const canBuyGingerbread = gingerbreadCount < 1;
+            const hasSnowman = snowmanCount >= 1;
+            
+            if (!canAffordGingerbread || !canBuyGingerbread || !hasSnowman) {
+                gingerbreadUpgrade.classList.add('disabled');
+            } else {
+                gingerbreadUpgrade.classList.remove('disabled');
+            }
+            
+            if (gingerbreadCount >= 1) {
+                gingerbreadCostElement.textContent = `Owned: ${gingerbreadCount} - 10 CPS`;
+                gingerbreadUpgrade.classList.add('purchased');
+            } else if (!hasSnowman) {
+                gingerbreadCostElement.textContent = `Requires 1 snowman`;
+            } else {
+                gingerbreadCostElement.textContent = `Cost: ${gingerbreadCost} - 10 CPS`;
+            }
         }
         
         mittenUpgrade.addEventListener('click', function(e) {
@@ -511,6 +555,19 @@
                 clickCount -= currentCost;
                 counterElement.textContent = clickCount;
                 createSnowman();
+                updateAutoClick();
+                updateUpgradeDisplay();
+            }
+        });
+        
+        gingerbreadUpgrade.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const gingerbreadCost = 250;
+            if (clickCount >= gingerbreadCost && gingerbreadCount < 1 && snowmanCount >= 1) {
+                clickCount -= gingerbreadCost;
+                counterElement.textContent = clickCount;
+                gingerbreadCount++;
+                checkAchievements();
                 updateAutoClick();
                 updateUpgradeDisplay();
             }
