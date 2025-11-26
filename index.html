@@ -46,11 +46,14 @@
             width: 600px;
             background-color: rgba(255, 255, 255, 0.1);
             border-right: 1px solid rgba(255, 255, 255, 0.2);
-            display: flex;
+            display: none;
             flex-direction: column;
             justify-content: flex-start;
             padding: 20px;
             box-sizing: border-box;
+        }
+        .left-sidebar.visible {
+            display: flex;
         }
         .right-sidebar {
             width: 300px;
@@ -166,10 +169,78 @@
                 opacity: 0;
             }
         }
+        .snowman-section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .snowman-section-title {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 18px;
+            color: white;
+            margin-bottom: 15px;
+            background-color: black;
+            padding: 12px;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .snowmen-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .snowman-visual {
+            width: 80px;
+            height: auto;
+        }
+        .snowman-visual img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .achievement-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10000;
+            pointer-events: none;
+        }
+        .achievement {
+            background-color: black;
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+            padding: 16px 24px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            opacity: 1;
+            transition: opacity 0.5s ease-out;
+            min-width: 300px;
+            text-align: center;
+        }
+        .achievement.fade-out {
+            opacity: 0;
+        }
+        .achievement-title {
+            font-weight: 700;
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+        .achievement-description {
+            font-size: 14px;
+            opacity: 0.8;
+        }
     </style>
 </head>
 <body>
     <div class="left-sidebar">
+        <div class="snowman-section">
+            <div class="snowman-section-title">Snowmen</div>
+            <div class="snowmen-container" id="snowmen-container">
+            </div>
+        </div>
     </div>
     <div class="main-content">
         <div class="counter" id="counter">0</div>
@@ -190,6 +261,7 @@
         </div>
     </div>
     <img src="cursor.webp" alt="" class="custom-cursor" id="customCursor">
+    <div class="achievement-container" id="achievement-container"></div>
     <script>
         document.querySelectorAll('img').forEach(img => {
             img.setAttribute('draggable', 'false');
@@ -219,6 +291,7 @@
         let snowmanCount = 0;
         let autoClickInterval = null;
         let mittenHistory = [];
+        let unlockedAchievements = new Set();
         const baseMittenCost = 10;
         const baseSnowmanCost = 50;
         const maxMittens = 32;
@@ -310,10 +383,40 @@
             }
         }
         
+        function showAchievement(title, description) {
+            const container = document.getElementById('achievement-container');
+            const achievement = document.createElement('div');
+            achievement.className = 'achievement';
+            achievement.innerHTML = `
+                <div class="achievement-title">${title}</div>
+                <div class="achievement-description">${description}</div>
+            `;
+            container.appendChild(achievement);
+            
+            setTimeout(() => {
+                achievement.classList.add('fade-out');
+                setTimeout(() => {
+                    achievement.remove();
+                }, 500);
+            }, 3000);
+        }
+        
+        function checkAchievements() {
+            if (mittenCount >= 1 && !unlockedAchievements.has('getting_mittens')) {
+                unlockedAchievements.add('getting_mittens');
+                showAchievement('Getting Mittens!', 'Own 1 Mitten');
+            }
+            if (mittenCount >= 3 && !unlockedAchievements.has('out_of_hand')) {
+                unlockedAchievements.add('out_of_hand');
+                showAchievement('Out of Hand', 'Obtain 3 Mittens');
+            }
+        }
+        
         function createMitten() {
             if (mittenCount >= maxMittens) return;
             mittenCount++;
             updateMittenDisplay();
+            checkAchievements();
         }
         
         function updateAutoClick() {
@@ -327,8 +430,32 @@
             }
         }
         
+        function updateSnowmanDisplay() {
+            const container = document.getElementById('snowmen-container');
+            const maxDisplay = 5;
+            const displayCount = Math.min(snowmanCount, maxDisplay);
+            
+            while (container.children.length < displayCount) {
+                const snowman = document.createElement('div');
+                snowman.className = 'snowman-visual';
+                const img = document.createElement('img');
+                img.src = 'snowman.png';
+                img.setAttribute('draggable', 'false');
+                snowman.appendChild(img);
+                container.appendChild(snowman);
+            }
+            
+            while (container.children.length > displayCount) {
+                container.removeChild(container.lastChild);
+            }
+        }
+        
         function createSnowman() {
             snowmanCount++;
+            if (snowmanCount > 0) {
+                document.querySelector('.left-sidebar').classList.add('visible');
+            }
+            updateSnowmanDisplay();
         }
         
         function updateUpgradeDisplay() {
@@ -407,6 +534,11 @@
         });
         
         updateUpgradeDisplay();
+        
+        if (snowmanCount > 0) {
+            document.querySelector('.left-sidebar').classList.add('visible');
+            updateSnowmanDisplay();
+        }
     </script>
 </body>
 </html>
