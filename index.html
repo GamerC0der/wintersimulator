@@ -609,6 +609,88 @@
         .rebirth-modal-overlay.visible {
             display: block;
         }
+        .trade-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 10001;
+            display: none;
+            pointer-events: auto;
+        }
+        .trade-modal-overlay.visible {
+            display: block;
+        }
+        .trade-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10002;
+            background-color: black;
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+            width: 400px;
+            border-radius: 4px;
+            padding: 24px;
+            box-sizing: border-box;
+            display: none;
+            flex-direction: column;
+            pointer-events: auto;
+        }
+        .trade-modal.visible {
+            display: flex;
+        }
+        .trade-modal-header {
+            font-weight: 700;
+            font-size: 24px;
+            margin-bottom: 16px;
+        }
+        .trade-modal-content {
+            font-size: 16px;
+            margin-bottom: 24px;
+            opacity: 0.9;
+            line-height: 1.5;
+            min-height: 100px;
+        }
+        .trade-modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+        .trade-modal-button {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            padding: 10px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .trade-modal-button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        .trade-button {
+            width: 100%;
+            background-color: black;
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            pointer-events: auto;
+            margin-top: 15px;
+            transition: all 0.2s;
+        }
+        .trade-button:hover {
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
@@ -637,6 +719,7 @@
             <div class="snowman-section-title">Snow Bank</div>
             <div class="snowmen-container" id="snowbank-container">
             </div>
+            <button class="trade-button" id="trade-button" style="display: none;">Tap to Trade</button>
         </div>
     </div>
     <div class="main-content">
@@ -722,6 +805,16 @@
         <div class="rebirth-modal-actions">
             <button class="rebirth-modal-button" id="rebirth-cancel">Cancel</button>
             <button class="rebirth-modal-button confirm" id="rebirth-confirm">Rebirth</button>
+        </div>
+    </div>
+    <div class="trade-modal-overlay" id="trade-modal-overlay"></div>
+    <div class="trade-modal" id="trade-modal">
+        <div class="trade-modal-header">Trade</div>
+        <div class="trade-modal-content">
+            <div style="display: flex; justify-content: center; align-items: center; height: 100%; font-size: 24px; font-weight: 700;">Trade and Multiply</div>
+        </div>
+        <div class="trade-modal-actions">
+            <button class="trade-modal-button" id="trade-close">Close</button>
         </div>
     </div>
     <div class="achievements-popover" id="achievements-popover">
@@ -1032,7 +1125,31 @@
             e.stopPropagation();
             hideRebirthModal();
         });
-        
+
+        const tradeModal = document.getElementById('trade-modal');
+        const tradeModalOverlay = document.getElementById('trade-modal-overlay');
+        const tradeClose = document.getElementById('trade-close');
+
+        function showTradeModal() {
+            tradeModal.classList.add('visible');
+            tradeModalOverlay.classList.add('visible');
+        }
+
+        function hideTradeModal() {
+            tradeModal.classList.remove('visible');
+            tradeModalOverlay.classList.remove('visible');
+        }
+
+        tradeClose.addEventListener('click', function(e) {
+            e.stopPropagation();
+            hideTradeModal();
+        });
+
+        tradeModalOverlay.addEventListener('click', function(e) {
+            e.stopPropagation();
+            hideTradeModal();
+        });
+
         function checkAchievements() {
             if (mittenCount >= 1 && !unlockedAchievements.has('getting_mittens')) {
                 unlockedAchievements.add('getting_mittens');
@@ -1427,11 +1544,14 @@
         function updateSnowbankDisplay() {
             const section = document.getElementById('snowbank-section');
             const container = document.getElementById('snowbank-container');
+            const tradeButton = document.getElementById('trade-button');
 
             if (snowBankPurchased) {
                 section.style.display = '';
+                tradeButton.style.display = 'block';
             } else {
                 section.style.display = 'none';
+                tradeButton.style.display = 'none';
                 return;
             }
 
@@ -1444,6 +1564,10 @@
                 img.src = 'snowbank.png';
                 img.setAttribute('draggable', 'false');
                 snowbank.appendChild(img);
+                snowbank.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    showTradeModal();
+                });
                 container.appendChild(snowbank);
             }
 
@@ -1696,6 +1820,12 @@
                 updateCookiesDisplay();
                 updateAutoClick();
             }
+        });
+
+        const tradeButton = document.getElementById('trade-button');
+        tradeButton.addEventListener('click', function(e) {
+            e.stopPropagation();
+            showTradeModal();
         });
         
         snowball.addEventListener('click', function(e) {
