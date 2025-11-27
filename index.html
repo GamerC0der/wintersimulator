@@ -325,7 +325,16 @@
             width: 160px;
             height: auto;
         }
-        .snowman-visual img, .hot-chocolate-visual img {
+        .snowbank-visual {
+            width: 320px;
+            height: auto;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            margin-left: 50%;
+            transform: translateX(-50%);
+        }
+        .snowman-visual img, .hot-chocolate-visual img, .snowbank-visual img {
             width: 100%;
             height: auto;
             display: block;
@@ -618,6 +627,11 @@
             <div class="snowmen-container" id="hotchocolate-container">
             </div>
         </div>
+        <div class="snowman-section" id="snowbank-section" style="display: none;">
+            <div class="snowman-section-title">Snow Bank</div>
+            <div class="snowmen-container" id="snowbank-container">
+            </div>
+        </div>
     </div>
     <div class="main-content">
         <div class="counter" id="counter">0</div>
@@ -655,6 +669,12 @@
                 <div class="upgrade-content">
                     <div class="upgrade-title">Hot Chocolate Cup</div>
                     <div class="upgrade-cost" id="hotchocolate-cost">Cost: 2500</div>
+                </div>
+            </div>
+            <div class="upgrade" id="snowbank-upgrade" style="display: none;">
+                <div class="upgrade-content">
+                    <div class="upgrade-title">Snow Bank</div>
+                    <div class="upgrade-cost" id="snowbank-cost">Cost: 10000</div>
                 </div>
             </div>
         </div>
@@ -734,6 +754,7 @@
         let hotChocolateCount = 0;
         let gingerbreadCount = 0;
         let gingerbreadHouseCount = 0;
+        let snowBankPurchased = false;
         let autoClickInterval = null;
         let gingerbreadCookies = 0;
         let goldenMittenPurchased = false;
@@ -766,6 +787,7 @@
         const baseGingerbreadCost = 250;
         const baseGingerbreadHouseCost = 1000;
         const baseHotChocolateCost = 2500;
+        const snowBankCost = 10000;
         const maxMittens = 32;
         const counterElement = document.getElementById('counter');
         const mittenUpgrade = document.getElementById('mitten-upgrade');
@@ -774,6 +796,8 @@
         const snowmanCostElement = document.getElementById('snowman-cost');
         const hotChocolateUpgrade = document.getElementById('hotchocolate-upgrade');
         const hotChocolateCostElement = document.getElementById('hotchocolate-cost');
+        const snowBankUpgrade = document.getElementById('snowbank-upgrade');
+        const snowBankCostElement = document.getElementById('snowbank-cost');
         const gingerbreadUpgrade = document.getElementById('gingerbread-upgrade');
         const gingerbreadCostElement = document.getElementById('gingerbread-cost');
         const gingerbreadHouseUpgrade = document.getElementById('gingerbreadhouse-upgrade');
@@ -1231,6 +1255,7 @@
                 hotChocolateCount = 0;
                 gingerbreadCount = 0;
                 gingerbreadHouseCount = 0;
+                snowBankPurchased = false;
                 
                 if (autoClickInterval) {
                     clearInterval(autoClickInterval);
@@ -1243,6 +1268,7 @@
                 updateGingerbreadDisplay();
                 updateGingerbreadHouseDisplay();
                 updateHotChocolateDisplay();
+                updateSnowbankDisplay();
                 updateUpgradeDisplay();
                 updateAutoClick();
                 updateRebirthButton();
@@ -1267,7 +1293,7 @@
             }
             const mittenMultiplier = goldenMittenPurchased ? 2 : 1;
             const snowmanMultiplier = goldenSnowmanPurchased ? 2 : 1;
-            const totalCPS = (mittenCount * mittenMultiplier) + (snowmanCount * 3 * snowmanMultiplier) + (gingerbreadCount * 10) + (gingerbreadHouseCount * 50) + (hotChocolateCount * 100);
+            const totalCPS = (mittenCount * mittenMultiplier) + (snowmanCount * 3 * snowmanMultiplier) + (gingerbreadCount * 10) + (gingerbreadHouseCount * 50) + (hotChocolateCount * 100) + (snowBankPurchased ? 500 : 0);
             if (totalCPS > 0) {
                 const clickInterval = 1000 / totalCPS;
                 autoClickInterval = setInterval(incrementClick, clickInterval);
@@ -1392,6 +1418,34 @@
                 container.removeChild(container.lastChild);
             }
         }
+
+        function updateSnowbankDisplay() {
+            const section = document.getElementById('snowbank-section');
+            const container = document.getElementById('snowbank-container');
+
+            if (snowBankPurchased) {
+                section.style.display = '';
+            } else {
+                section.style.display = 'none';
+                return;
+            }
+
+            const displayCount = snowBankPurchased ? 1 : 0;
+
+            while (container.children.length < displayCount) {
+                const snowbank = document.createElement('div');
+                snowbank.className = 'snowbank-visual';
+                const img = document.createElement('img');
+                img.src = 'snowbank.png';
+                img.setAttribute('draggable', 'false');
+                snowbank.appendChild(img);
+                container.appendChild(snowbank);
+            }
+
+            while (container.children.length > displayCount) {
+                container.removeChild(container.lastChild);
+            }
+        }
         
         function createSnowman() {
             snowmanCount++;
@@ -1485,16 +1539,16 @@
             const hasGingerbreadHouse = gingerbreadHouseCount >= 1;
             if (hasGingerbreadHouse) {
                 hotChocolateUpgrade.style.display = '';
-                
+
                 const hotChocolateCost = getHotChocolateCost(hotChocolateCount);
                 const canAffordHotChocolate = clickCount >= hotChocolateCost;
-                
+
                 if (!canAffordHotChocolate) {
                     hotChocolateUpgrade.classList.add('disabled');
                 } else {
                     hotChocolateUpgrade.classList.remove('disabled');
                 }
-                
+
                 if (hotChocolateCount >= 1) {
                     hotChocolateCostElement.textContent = `Cost: ${hotChocolateCost} (Owned: ${hotChocolateCount}) - 100 CPS each`;
                     hotChocolateUpgrade.classList.remove('purchased');
@@ -1503,6 +1557,31 @@
                 }
             } else {
                 hotChocolateUpgrade.style.display = 'none';
+            }
+
+            const hasHotChocolate = hotChocolateCount >= 1;
+            if (hasHotChocolate) {
+                snowBankUpgrade.style.display = '';
+
+                const canAffordSnowBank = clickCount >= snowBankCost;
+                const hasHotChocolateCup = hotChocolateCount >= 1;
+
+                if (!canAffordSnowBank || !hasHotChocolateCup || snowBankPurchased) {
+                    snowBankUpgrade.classList.add('disabled');
+                } else {
+                    snowBankUpgrade.classList.remove('disabled');
+                }
+
+                if (snowBankPurchased) {
+                    snowBankUpgrade.classList.add('purchased');
+                    snowBankCostElement.textContent = 'Purchased - 500 CPS';
+                } else if (!hasHotChocolateCup) {
+                    snowBankCostElement.textContent = 'Requires 1 hot chocolate cup';
+                } else {
+                    snowBankCostElement.textContent = `Cost: ${snowBankCost} - 500 CPS`;
+                }
+            } else {
+                snowBankUpgrade.style.display = 'none';
             }
         }
         
@@ -1541,6 +1620,18 @@
                     document.querySelector('.left-sidebar').classList.add('visible');
                 }
                 updateHotChocolateDisplay();
+                updateAutoClick();
+                updateUpgradeDisplay();
+            }
+        });
+
+        snowBankUpgrade.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (clickCount >= snowBankCost && hotChocolateCount >= 1 && !snowBankPurchased) {
+                clickCount -= snowBankCost;
+                counterElement.textContent = clickCount;
+                snowBankPurchased = true;
+                updateSnowbankDisplay();
                 updateAutoClick();
                 updateUpgradeDisplay();
             }
@@ -1645,12 +1736,13 @@
         updateRebirthButton();
         updateCookiesDisplay();
         
-        if (snowmanCount > 0 || gingerbreadCount > 0 || gingerbreadHouseCount > 0 || hotChocolateCount > 0) {
+        if (snowmanCount > 0 || gingerbreadCount > 0 || gingerbreadHouseCount > 0 || hotChocolateCount > 0 || snowBankPurchased) {
             document.querySelector('.left-sidebar').classList.add('visible');
             updateSnowmanDisplay();
             updateGingerbreadDisplay();
             updateGingerbreadHouseDisplay();
             updateHotChocolateDisplay();
+            updateSnowbankDisplay();
         }
     </script>
 </body>
