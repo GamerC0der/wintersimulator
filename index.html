@@ -329,10 +329,16 @@
             width: 320px;
             height: auto;
             display: flex;
+            flex-direction: column;
             justify-content: flex-start;
             align-items: center;
             margin-left: 50%;
             transform: translateX(-50%);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+        .snowbank-visual:hover {
+            transform: translateX(-50%) scale(1.2);
         }
         .snowman-visual img, .hot-chocolate-visual img, .snowbank-visual img {
             width: 100%;
@@ -672,7 +678,6 @@
                 </div>
             </div>
             <div class="upgrade" id="snowbank-upgrade" style="display: none;">
-                <div class="upgrade-content">
                     <div class="upgrade-title">Snow Bank</div>
                     <div class="upgrade-cost" id="snowbank-cost">Cost: 10000</div>
                 </div>
