@@ -691,6 +691,108 @@
         .trade-button:hover {
             transform: translateY(-2px);
         }
+        .stock-price {
+            font-size: 48px;
+            font-weight: 700;
+            color: white;
+            text-align: center;
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .stock-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        .stock-owned, .stock-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: white;
+        }
+        .trading-controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .buy-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .buy-controls input {
+            width: 80px;
+            padding: 8px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            text-align: center;
+        }
+        .buy-controls input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        .buy-button, .sell-button {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            padding: 12px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 100px;
+        }
+        .buy-button:hover:not(:disabled), .sell-button:hover:not(:disabled) {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        .buy-button:disabled, .sell-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .trading-timer {
+            text-align: center;
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+            margin: 15px 0;
+            opacity: 0.9;
+        }
+        .sell-options {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .sell-option {
+            background-color: rgba(255, 0, 0, 0.2);
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            padding: 8px 16px;
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .sell-option:hover:not(:disabled) {
+            background-color: rgba(255, 0, 0, 0.3);
+            transform: translateY(-2px);
+        }
+        .sell-option:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
     </style>
 </head>
 <body>
@@ -809,9 +911,25 @@
     </div>
     <div class="trade-modal-overlay" id="trade-modal-overlay"></div>
     <div class="trade-modal" id="trade-modal">
-        <div class="trade-modal-header">Trade</div>
+        <div class="trade-modal-header">$SNOW Stock Trading</div>
         <div class="trade-modal-content">
-            <div style="display: flex; justify-content: center; align-items: center; height: 100%; font-size: 24px; font-weight: 700;">Trade and Multiply</div>
+            <div class="stock-price" id="stock-price">$1.00</div>
+            <div class="stock-info">
+                <div class="stock-owned">Owned: <span id="owned-stocks">0</span></div>
+                <div class="stock-value">Value: $<span id="portfolio-value">0.00</span></div>
+            </div>
+            <div class="trading-timer" id="trading-timer">Trading session starts when you buy your first stock</div>
+            <div class="trading-controls">
+                <div class="buy-controls">
+                    <input type="number" id="buy-amount" min="1" value="1" placeholder="Amount">
+                    <button class="buy-button" id="buy-stock">Buy $SNOW</button>
+                </div>
+            </div>
+            <div class="sell-options">
+                <button class="sell-option" id="sell-25">Sell 25%</button>
+                <button class="sell-option" id="sell-50">Sell 50%</button>
+                <button class="sell-option" id="sell-100">Sell 100%</button>
+            </div>
         </div>
         <div class="trade-modal-actions">
             <button class="trade-modal-button" id="trade-close">Close</button>
@@ -861,6 +979,15 @@
         let mittenHistory = [];
         let activeSnowflakes = 0;
         let unlockedAchievements = new Set();
+
+        let stockPrice = 1.00;
+        let ownedStocks = 0;
+        let tradingSessionActive = false;
+        let tradingSessionTime = 0;
+        let stockPriceInterval = null;
+        let tradingSessionInterval = null;
+        let sessionStartTime = 0;
+        let priceEverOver105 = false;
         const snowmanNames = [
             "Frosty", "Snowball", "Chilly", "Icicle", "Winter", "Blizzard",
             "Powder", "Glacier", "Snowflake", "Arctic", "Polar", "North"
@@ -902,6 +1029,16 @@
         const gingerbreadHouseCostElement = document.getElementById('gingerbreadhouse-cost');
         const snowballContainer = document.getElementById('snowball-container');
         const snowball = document.querySelector('.snowball');
+
+        const stockPriceElement = document.getElementById('stock-price');
+        const ownedStocksElement = document.getElementById('owned-stocks');
+        const portfolioValueElement = document.getElementById('portfolio-value');
+        const tradingTimerElement = document.getElementById('trading-timer');
+        const buyAmountInput = document.getElementById('buy-amount');
+        const buyStockButton = document.getElementById('buy-stock');
+        const sell25Button = document.getElementById('sell-25');
+        const sell50Button = document.getElementById('sell-50');
+        const sell100Button = document.getElementById('sell-100');
         
         function getMittenCost(count) {
             if (count < 10) {
@@ -1133,11 +1270,119 @@
         function showTradeModal() {
             tradeModal.classList.add('visible');
             tradeModalOverlay.classList.add('visible');
+            updateStockDisplay();
         }
 
         function hideTradeModal() {
             tradeModal.classList.remove('visible');
             tradeModalOverlay.classList.remove('visible');
+            stopTradingSession();
+        }
+
+        function updateStockDisplay() {
+            stockPriceElement.textContent = '$' + stockPrice.toFixed(2);
+            ownedStocksElement.textContent = ownedStocks;
+            portfolioValueElement.textContent = (ownedStocks * stockPrice).toFixed(2);
+
+            const buyAmount = parseInt(buyAmountInput.value) || 1;
+            const canAfford = clickCount >= buyAmount;
+            buyStockButton.disabled = !canAfford || buyAmount < 1;
+            buyStockButton.style.opacity = canAfford && buyAmount >= 1 ? '1' : '0.5';
+
+            const canSell = ownedStocks > 0;
+            sell25Button.disabled = !canSell;
+            sell50Button.disabled = !canSell;
+            sell100Button.disabled = !canSell;
+            sell25Button.style.opacity = canSell ? '1' : '0.5';
+            sell50Button.style.opacity = canSell ? '1' : '0.5';
+            sell100Button.style.opacity = canSell ? '1' : '0.5';
+        }
+
+        function startTradingSession() {
+            if (tradingSessionActive) return;
+
+            tradingSessionActive = true;
+            stockPrice = 1.00;
+            sessionStartTime = Date.now();
+            priceEverOver105 = false;
+
+            updateTradingTimer();
+
+            stockPriceInterval = setInterval(() => {
+                fluctuateStockPrice();
+            }, 500 + Math.random() * 500);
+
+            const crashTime = 10 + (Math.random() * 2 - 1) * 5;
+            setTimeout(() => {
+                companyBankruptcy();
+            }, crashTime * 1000);
+        }
+
+        function stopTradingSession() {
+            tradingSessionActive = false;
+
+            if (stockPriceInterval) {
+                clearInterval(stockPriceInterval);
+                stockPriceInterval = null;
+            }
+
+            if (tradingSessionInterval) {
+                clearInterval(tradingSessionInterval);
+                tradingSessionInterval = null;
+            }
+
+            if (ownedStocks === 0) {
+                tradingTimerElement.textContent = "Trading session starts when you buy your first stock";
+            }
+        }
+
+        function updateTradingTimer() {
+            if (tradingSessionActive) {
+                tradingTimerElement.textContent = "Trading session active - Sell before bankruptcy!";
+            }
+        }
+
+        function companyBankruptcy() {
+            showAchievement("Bankruptcy!", "$SNOW went bankrupt!");
+            if (ownedStocks > 0) {
+                ownedStocks = 0;
+                updateStockDisplay();
+            }
+            stopTradingSession();
+        }
+
+        function fluctuateStockPrice() {
+            const rand = Math.random() * 100;
+
+            let downChance;
+            if (stockPrice < 0.25) {
+                downChance = (55 / 2) / 4;
+            } else if (stockPrice < 0.50) {
+                downChance = (55 / 2) / 3;
+            } else {
+                downChance = 55 / 2;
+            }
+
+            const stayChance = 5;
+            const upChance = 100 - stayChance - downChance;
+
+            const stayThreshold = stayChance;
+            const upThreshold = stayThreshold + upChance;
+
+            if (rand < stayThreshold) {
+            } else if (rand < upThreshold) {
+                const multiplier = 1.05 + Math.random() * 0.15;
+                stockPrice *= multiplier;
+                if (stockPrice > 1.05) {
+                    priceEverOver105 = true;
+                }
+            } else {
+                const multiplier = 1.03 + Math.random() * 0.22;
+                stockPrice /= multiplier;
+            }
+            stockPrice = Math.max(0.01, stockPrice);
+
+            updateStockDisplay();
         }
 
         tradeClose.addEventListener('click', function(e) {
@@ -1149,6 +1394,65 @@
             e.stopPropagation();
             hideTradeModal();
         });
+
+        buyAmountInput.addEventListener('input', function(e) {
+            updateStockDisplay();
+        });
+
+        buyStockButton.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const buyAmount = parseInt(buyAmountInput.value) || 1;
+            if (clickCount >= buyAmount && buyAmount >= 1) {
+                clickCount -= buyAmount;
+                counterElement.textContent = clickCount;
+                ownedStocks += buyAmount;
+
+                if (!tradingSessionActive && ownedStocks > 0) {
+                    startTradingSession();
+                }
+
+                updateStockDisplay();
+                updateUpgradeDisplay();
+            }
+        });
+
+        sell25Button.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (ownedStocks > 0) {
+                const stocksToSell = Math.floor(ownedStocks * 0.25);
+                sellStocks(stocksToSell);
+            }
+        });
+
+        sell50Button.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (ownedStocks > 0) {
+                const stocksToSell = Math.floor(ownedStocks * 0.5);
+                sellStocks(stocksToSell);
+            }
+        });
+
+        sell100Button.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (ownedStocks > 0) {
+                sellStocks(ownedStocks);
+            }
+        });
+
+        function sellStocks(stocksToSell) {
+            const earnings = stocksToSell * stockPrice;
+            clickCount += Math.floor(earnings);
+            counterElement.textContent = clickCount;
+            ownedStocks -= stocksToSell;
+
+            updateStockDisplay();
+            updateUpgradeDisplay();
+
+            if (ownedStocks === 0) {
+                showAchievement("Successful Trade!", "You sold all your stocks before bankruptcy!");
+                stopTradingSession();
+            }
+        }
 
         function checkAchievements() {
             if (mittenCount >= 1 && !unlockedAchievements.has('getting_mittens')) {
