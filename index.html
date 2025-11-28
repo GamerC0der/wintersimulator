@@ -101,6 +101,9 @@
         .upgrade#golden-snowman-upgrade {
             margin-top: 24px;
         }
+        .upgrade#random-buff-upgrade {
+            margin-top: 24px;
+        }
         .upgrade-content {
             flex: 1;
         }
@@ -648,7 +651,7 @@
         }
         .trade-modal-button {
             background-color: rgba(255, 255, 255, 0.1);
-            color: white;
+            color: white;ß
             font-family: 'Montserrat', sans-serif;
             font-weight: 700;
             padding: 10px 20px;
@@ -890,6 +893,13 @@
                 </div>
                 <img src="golden_snowman.png" alt="Golden Snowman" class="upgrade-image">
             </div>
+            <div class="upgrade" id="random-buff-upgrade" style="display: none;">
+                <div class="upgrade-content">
+                    <div class="upgrade-title">Random Buff</div>
+                    <div class="upgrade-cost" id="random-buff-cost">Cost: 5 Gingerbread Cookies</div>
+                </div>
+                <img src="snowflake.webp" alt="Random Buff" class="upgrade-image">
+            </div>
         </div>
     </div>
     <img src="cursor.webp" alt="" class="custom-cursor" id="customCursor">
@@ -901,7 +911,7 @@
     <div class="rebirth-modal" id="rebirth-modal">
         <div class="rebirth-modal-header">Rebirth</div>
         <div class="rebirth-modal-content">
-            Are you sure you want to rebirth? This will reset all your progress including snowballs and upgrades.
+            You will lose all snow and upgrades but earn gingerbread cookies.
         </div>
         <div class="rebirth-modal-actions">
             <button class="rebirth-modal-button" id="rebirth-cancel">Cancel</button>
@@ -910,14 +920,14 @@
     </div>
     <div class="trade-modal-overlay" id="trade-modal-overlay"></div>
     <div class="trade-modal" id="trade-modal">
-        <div class="trade-modal-header">$SNOW Stock Trading</div>
+        <div class="trade-modal-header">❄️ $SNOW Stock Exchange ❄️</div>
         <div class="trade-modal-content">
             <div class="stock-price" id="stock-price">$1.00<span id="price-change" class="price-change"></span></div>
             <div class="stock-info">
                 <div class="stock-owned">Owned: <span id="owned-stocks">0</span></div>
                 <div class="stock-value">Value: $<span id="portfolio-value">0.00</span></div>
             </div>
-            <div class="trading-timer" id="trading-timer">Trading session starts when you buy your first stock</div>
+            <div class="trading-timer" id="trading-timer">Buy your first $SNOW stock to start the winter trading blizzard!</div>
             <div class="trading-controls">
                 <div class="buy-controls">
                     <input type="number" id="buy-amount" min="1" value="1" placeholder="Amount">
@@ -978,6 +988,9 @@
         let mittenHistory = [];
         let activeSnowflakes = 0;
         let unlockedAchievements = new Set();
+        let activeBuffs = {};
+        let buffTimers = {};
+        let rebirthMultiplier = 1;
 
         let stockPrice = 1.00;
         let ownedStocks = 0;
@@ -998,15 +1011,210 @@
             "Crumble", "Chewy", "Soft", "Warm"
         ];
         const achievementData = {
-            'getting_mittens': { title: 'Getting Mittens!', description: 'Own 1 Mitten' },
-            'out_of_hand': { title: 'Out of Hand', description: 'Obtain 3 Mittens' },
-            'jolly_happy_soul': { title: 'A Jolly Happy Soul', description: 'Obtain 1 Snowman' },
-            'snowmen': { title: 'Snowmen', description: 'Obtain 2 Snowmen' },
-            'disappearing': { title: 'Help! I\'m disappearing.', description: 'Obtain 6 Snowmen' },
-            'house_please': { title: 'House please!', description: 'Obtain 1 Gingerbeard' },
-            'thanks_gingerbread_man': { title: 'Thanks - Gingerbread Man', description: 'Obtain 1 Gingerbread House' },
-            'rebirths_unlocked': { title: 'Rebirths Unlocked', description: 'Obtain 1000 Snowballs' }
+            'getting_mittens': { title: 'Mitten Collector', description: 'Acquire your first mitten' },
+            'out_of_hand': { title: 'Out of Hand', description: 'Build up 3 mittens' },
+            'jolly_happy_soul': { title: 'Frosty Friend', description: 'Create your first snowman' },
+            'snowmen': { title: 'Snowman Army', description: 'Build 2 snowmen' },
+            'disappearing': { title: 'Winter Wonderland', description: 'Create 6 snowmen' },
+            'house_please': { title: 'Sweet Treats', description: 'Bake your first gingerbread man' },
+            'thanks_gingerbread_man': { title: 'Gingerbread Architect', description: 'Build your first gingerbread house' },
+            'rebirths_unlocked': { title: 'Winter Rebirth', description: 'Gather 1000 snowballs to unlock rebirths' }
         };
+
+        const buffData = {
+            'double_earnings': {
+                name: 'Earnings Blizzard',
+                description: 'Double all earnings for 5 minutes of snowball frenzy!',
+                duration: 300000, // 5 minutes in milliseconds
+                probability: 20,
+                type: 'earnings_multiplier',
+                value: 2
+            },
+            'triple_earnings': {
+                name: 'Triple Earnings Storm',
+                description: 'Triple all earnings for 3 minutes of winter madness!',
+                duration: 180000, // 3 minutes
+                probability: 16,
+                type: 'earnings_multiplier',
+                value: 3
+            },
+            'half_off': {
+                name: 'Winter Sale',
+                description: 'All upgrades cost half price for 1 minute!',
+                duration: 60000, // 1 minute
+                probability: 4,
+                type: 'cost_reduction',
+                value: 0.5
+            },
+            'mitten_overload': {
+                name: 'Mitten Mania',
+                description: 'All mittens cost only 1 snowball each!',
+                duration: -1, // Permanent until rebirth
+                probability: 8,
+                type: 'mitten_cost_override',
+                value: 1
+            },
+            'double_rebirth': {
+                name: 'Lucky Rebirth',
+                description: 'Your next rebirth will give double gingerbread cookies!',
+                duration: -1, // Until used
+                probability: 8,
+                type: 'rebirth_multiplier',
+                value: 2
+            },
+            'triple_rebirth': {
+                name: 'Mega Rebirth',
+                description: 'Your next rebirth will give triple gingerbread cookies!',
+                duration: -1, // Until used
+                probability: 4,
+                type: 'rebirth_multiplier',
+                value: 3
+            },
+            'tap_frenzy': {
+                name: 'Tap Frenzy',
+                description: 'Each tap gives 50 snowballs for 3 minutes!',
+                duration: 180000, // 3 minutes
+                probability: 20,
+                type: 'tap_bonus',
+                value: 50
+            },
+            'ultra_tap_frenzy': {
+                name: 'Ultra Tap Frenzy',
+                description: 'Each tap gives 100 snowballs for 5 minutes!',
+                duration: 300000, // 5 minutes
+                probability: 12,
+                type: 'tap_bonus',
+                value: 100
+            },
+            'snowman_bonus': {
+                name: 'Frosty Boost',
+                description: 'Snowmen produce double earnings for 2 minutes!',
+                duration: 120000, // 2 minutes
+                probability: 4,
+                type: 'snowman_multiplier',
+                value: 2
+            },
+            'ultra_snowman_bonus': {
+                name: 'Arctic Power',
+                description: 'Snowmen produce triple earnings for 3 minutes!',
+                duration: 180000, // 3 minutes
+                probability: 4,
+                type: 'snowman_multiplier',
+                value: 3
+            }
+        };
+
+        function selectRandomBuff() {
+            const rand = Math.random() * 100;
+            let cumulativeProbability = 0;
+
+            for (const [buffId, buff] of Object.entries(buffData)) {
+                cumulativeProbability += buff.probability;
+                if (rand <= cumulativeProbability) {
+                    return buffId;
+                }
+            }
+
+            return 'double_earnings';
+        }
+
+        function activateBuff(buffId) {
+            const buff = buffData[buffId];
+            if (!buff) return;
+
+            for (const [existingBuffId, existingBuff] of Object.entries(activeBuffs)) {
+                if (existingBuff.type === buff.type) {
+                    deactivateBuff(existingBuffId);
+                }
+            }
+
+            activeBuffs[buffId] = buff;
+
+            showAchievement(buff.name, buff.description);
+
+            if (buff.duration > 0) {
+                buffTimers[buffId] = setTimeout(() => {
+                    deactivateBuff(buffId);
+                }, buff.duration);
+            } else if (buff.type === 'rebirth_multiplier') {
+                rebirthMultiplier *= buff.value;
+            }
+
+            updateAutoClick();
+            updateUpgradeDisplay();
+        }
+
+        function deactivateBuff(buffId) {
+            if (activeBuffs[buffId]) {
+                delete activeBuffs[buffId];
+            }
+
+            if (buffTimers[buffId]) {
+                clearTimeout(buffTimers[buffId]);
+                delete buffTimers[buffId];
+            }
+
+            updateAutoClick();
+            updateUpgradeDisplay();
+        }
+
+        function getCurrentEarningsMultiplier() {
+            let multiplier = 1;
+
+            for (const buff of Object.values(activeBuffs)) {
+                if (buff.type === 'earnings_multiplier') {
+                    multiplier *= buff.value;
+                }
+            }
+
+            return multiplier;
+        }
+
+        function getCurrentSnowmanMultiplier() {
+            let multiplier = 1;
+
+            for (const buff of Object.values(activeBuffs)) {
+                if (buff.type === 'snowman_multiplier') {
+                    multiplier *= buff.value;
+                }
+            }
+
+            return multiplier;
+        }
+
+        function getCurrentTapBonus() {
+            let bonus = 0;
+
+            for (const buff of Object.values(activeBuffs)) {
+                if (buff.type === 'tap_bonus') {
+                    bonus = Math.max(bonus, buff.value); // Use the highest tap bonus
+                }
+            }
+
+            return bonus;
+        }
+
+        function getCurrentCostMultiplier() {
+            let multiplier = 1;
+
+            for (const buff of Object.values(activeBuffs)) {
+                if (buff.type === 'cost_reduction') {
+                    multiplier *= buff.value;
+                }
+            }
+
+            return multiplier;
+        }
+
+        function getMittenCostOverride() {
+            for (const buff of Object.values(activeBuffs)) {
+                if (buff.type === 'mitten_cost_override') {
+                    return buff.value;
+                }
+            }
+
+            return null;
+        }
         const baseMittenCost = 10;
         const baseSnowmanCost = 50;
         const baseGingerbreadCost = 250;
@@ -1041,6 +1249,11 @@
         const sell100Button = document.getElementById('sell-100');
         
         function getMittenCost(count) {
+            const overrideCost = getMittenCostOverride();
+            if (overrideCost !== null) {
+                return overrideCost;
+            }
+
             if (count < 10) {
                 return Math.ceil(baseMittenCost * Math.pow(1.05, count));
             } else if (count < 16) {
@@ -1071,7 +1284,17 @@
         }
         
         function incrementClick() {
-            clickCount++;
+            let incrementAmount = 1;
+
+            const tapBonus = getCurrentTapBonus();
+            if (tapBonus > 0) {
+                incrementAmount = tapBonus;
+            }
+
+            const earningsMultiplier = getCurrentEarningsMultiplier();
+            incrementAmount *= earningsMultiplier;
+
+            clickCount += incrementAmount;
             counterElement.textContent = clickCount;
             checkAchievements();
             
@@ -1359,18 +1582,18 @@
             }
 
             if (ownedStocks === 0) {
-                tradingTimerElement.textContent = "Trading session starts when you buy your first stock";
+                tradingTimerElement.textContent = "Buy your first $SNOW stock to start the winter trading blizzard!";
             }
         }
 
         function updateTradingTimer() {
             if (tradingSessionActive) {
-                tradingTimerElement.textContent = "Trading session active - Sell before bankruptcy!";
+                tradingTimerElement.textContent = "❄️ Trading blizzard active - Cash out before the meltdown! ❄️";
             }
         }
 
         function companyBankruptcy() {
-            showAchievement("Bankruptcy!", "$SNOW went bankrupt!");
+            showAchievement("Winter Meltdown!", "❄️ $SNOW stocks melted away! Better luck next freeze! ❄️");
             if (ownedStocks > 0) {
                 ownedStocks = 0;
                 updateStockDisplay();
@@ -1477,7 +1700,7 @@
             updateUpgradeDisplay();
 
             if (ownedStocks === 0) {
-                showAchievement("Successful Trade!", "You sold all your stocks before bankruptcy!");
+                showAchievement("Frosty Fortune!", "You cashed out perfectly before the winter storm!");
                 stopTradingSession();
             }
         }
@@ -1485,35 +1708,43 @@
         function checkAchievements() {
             if (mittenCount >= 1 && !unlockedAchievements.has('getting_mittens')) {
                 unlockedAchievements.add('getting_mittens');
-                showAchievement('Getting Mittens!', 'Own 1 Mitten');
+                const achievement = achievementData['getting_mittens'];
+                showAchievement(achievement.title, achievement.description);
             }
             if (mittenCount >= 3 && !unlockedAchievements.has('out_of_hand')) {
                 unlockedAchievements.add('out_of_hand');
-                showAchievement('Out of Hand', 'Obtain 3 Mittens');
+                const achievement = achievementData['out_of_hand'];
+                showAchievement(achievement.title, achievement.description);
             }
             if (snowmanCount >= 1 && !unlockedAchievements.has('jolly_happy_soul')) {
                 unlockedAchievements.add('jolly_happy_soul');
-                showAchievement('A Jolly Happy Soul', 'Obtain 1 Snowman');
+                const achievement = achievementData['jolly_happy_soul'];
+                showAchievement(achievement.title, achievement.description);
             }
             if (snowmanCount >= 2 && !unlockedAchievements.has('snowmen')) {
                 unlockedAchievements.add('snowmen');
-                showAchievement('Snowmen', 'Obtain 2 Snowmen');
+                const achievement = achievementData['snowmen'];
+                showAchievement(achievement.title, achievement.description);
             }
             if (snowmanCount >= 6 && !unlockedAchievements.has('disappearing')) {
                 unlockedAchievements.add('disappearing');
-                showAchievement('Help! I\'m disappearing.', 'Obtain 6 Snowmen');
+                const achievement = achievementData['disappearing'];
+                showAchievement(achievement.title, achievement.description);
             }
             if (gingerbreadCount >= 1 && !unlockedAchievements.has('house_please')) {
                 unlockedAchievements.add('house_please');
-                showAchievement('House please!', 'Obtain 1 Gingerbeard');
+                const achievement = achievementData['house_please'];
+                showAchievement(achievement.title, achievement.description);
             }
             if (gingerbreadHouseCount >= 1 && !unlockedAchievements.has('thanks_gingerbread_man')) {
                 unlockedAchievements.add('thanks_gingerbread_man');
-                showAchievement('Thanks - Gingerbread Man', 'Obtain 1 Gingerbread House');
+                const achievement = achievementData['thanks_gingerbread_man'];
+                showAchievement(achievement.title, achievement.description);
             }
             if (clickCount >= 1000 && !unlockedAchievements.has('rebirths_unlocked')) {
                 unlockedAchievements.add('rebirths_unlocked');
-                showAchievement('Rebirths Unlocked', 'Obtain 1000 Snowballs');
+                const achievement = achievementData['rebirths_unlocked'];
+                showAchievement(achievement.title, achievement.description);
             }
             updateRebirthButton();
         }
@@ -1647,6 +1878,18 @@
                     if (goldenSnowmanCost) goldenSnowmanCost.textContent = 'Cost: 3 Gingerbread Cookies';
                 }
             }
+
+            const randomBuffUpgrade = document.getElementById('random-buff-upgrade');
+            const randomBuffCost = document.getElementById('random-buff-cost');
+            if (randomBuffUpgrade) {
+                if (gingerbreadCookies >= 5) {
+                    randomBuffUpgrade.style.display = '';
+                    randomBuffUpgrade.classList.remove('disabled');
+                    if (randomBuffCost) randomBuffCost.textContent = 'Cost: 5 Gingerbread Cookies';
+                } else {
+                    randomBuffUpgrade.style.display = 'none';
+                }
+            }
         }
         
         function updateCookiesDisplay() {
@@ -1715,8 +1958,9 @@
                 particlesContainer.appendChild(particle);
             }
             
-            const cookiesEarned = calculateCookiesEarned(clickCount, mittenCount, snowmanCount, hotChocolateCount, gingerbreadCount, gingerbreadHouseCount);
+            const cookiesEarned = calculateCookiesEarned(clickCount, mittenCount, snowmanCount, hotChocolateCount, gingerbreadCount, gingerbreadHouseCount) * rebirthMultiplier;
             gingerbreadCookies += cookiesEarned;
+            rebirthMultiplier = 1; // Reset after use
             
             setTimeout(() => {
                 clickCount = 0;
@@ -1726,6 +1970,16 @@
                 gingerbreadCount = 0;
                 gingerbreadHouseCount = 0;
                 snowBankPurchased = false;
+
+                for (const buffId in activeBuffs) {
+                    deactivateBuff(buffId);
+                }
+                activeBuffs = {};
+                for (const timerId in buffTimers) {
+                    clearTimeout(buffTimers[timerId]);
+                }
+                buffTimers = {};
+                rebirthMultiplier = 1;
                 
                 if (autoClickInterval) {
                     clearInterval(autoClickInterval);
@@ -1763,8 +2017,9 @@
                 clearInterval(autoClickInterval);
             }
             const mittenMultiplier = goldenMittenPurchased ? 2 : 1;
-            const snowmanMultiplier = goldenSnowmanPurchased ? 2 : 1;
-            const totalCPS = (mittenCount * mittenMultiplier) + (snowmanCount * 3 * snowmanMultiplier) + (gingerbreadCount * 10) + (gingerbreadHouseCount * 50) + (hotChocolateCount * 100) + (snowBankPurchased ? 500 : 0);
+            const snowmanMultiplier = (goldenSnowmanPurchased ? 2 : 1) * getCurrentSnowmanMultiplier();
+            const earningsMultiplier = getCurrentEarningsMultiplier();
+            const totalCPS = ((mittenCount * mittenMultiplier) + (snowmanCount * 3 * snowmanMultiplier) + (gingerbreadCount * 10) + (gingerbreadHouseCount * 50) + (hotChocolateCount * 100) + (snowBankPurchased ? 500 : 0)) * earningsMultiplier;
             if (totalCPS > 0) {
                 const clickInterval = 1000 / totalCPS;
                 autoClickInterval = setInterval(incrementClick, clickInterval);
@@ -1963,7 +2218,7 @@
             }
             
             if (!hasMitten) {
-                snowmanCostElement.textContent = `Requires 1 mitten`;
+                snowmanCostElement.textContent = `Build a mitten first!`;
             } else {
                 snowmanCostElement.textContent = `Cost: ${snowmanCost} (Owned: ${snowmanCount}) - 3 CPS`;
             }
@@ -1984,7 +2239,7 @@
                     gingerbreadCostElement.textContent = `Cost: ${gingerbreadCost} (Owned: ${gingerbreadCount}) - 10 CPS each`;
                     gingerbreadUpgrade.classList.remove('purchased');
                 } else if (!hasSnowman) {
-                    gingerbreadCostElement.textContent = `Requires 1 snowman`;
+                    gingerbreadCostElement.textContent = `Create a snowman first!`;
                 } else {
                     gingerbreadCostElement.textContent = `Cost: ${gingerbreadCost} - 10 CPS each`;
                 }
@@ -2054,7 +2309,7 @@
                     snowBankUpgrade.classList.add('purchased');
                     snowBankCostElement.textContent = 'Purchased - 500 CPS';
                 } else if (!hasHotChocolateCup) {
-                    snowBankCostElement.textContent = 'Requires 1 hot chocolate cup';
+                    snowBankCostElement.textContent = 'Grab a hot chocolate first!';
                 } else {
                     snowBankCostElement.textContent = `Cost: ${snowBankCost} - 500 CPS`;
                 }
@@ -2157,6 +2412,7 @@
             if (!goldenMittenPurchased && gingerbreadCookies >= 1) {
                 gingerbreadCookies -= 1;
                 goldenMittenPurchased = true;
+                customCursor.src = 'golden_mitten.png';
                 updateCookiesDisplay();
                 updateAutoClick();
             }
@@ -2170,6 +2426,17 @@
                 goldenSnowmanPurchased = true;
                 updateCookiesDisplay();
                 updateAutoClick();
+            }
+        });
+
+        const randomBuffUpgrade = document.getElementById('random-buff-upgrade');
+        randomBuffUpgrade.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (gingerbreadCookies >= 5) {
+                gingerbreadCookies -= 5;
+                const selectedBuff = selectRandomBuff();
+                activateBuff(selectedBuff);
+                updateCookiesDisplay();
             }
         });
 
@@ -2221,6 +2488,10 @@
         updateAchievementsButton();
         updateRebirthButton();
         updateCookiesDisplay();
+
+        if (goldenMittenPurchased) {
+            customCursor.src = 'golden_mitten.png';
+        }
         
         if (snowmanCount > 0 || gingerbreadCount > 0 || gingerbreadHouseCount > 0 || hotChocolateCount > 0 || snowBankPurchased) {
             document.querySelector('.left-sidebar').classList.add('visible');
