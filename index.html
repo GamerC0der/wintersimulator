@@ -920,14 +920,14 @@
     </div>
     <div class="trade-modal-overlay" id="trade-modal-overlay"></div>
     <div class="trade-modal" id="trade-modal">
-        <div class="trade-modal-header">❄️ $SNOW Stock Exchange ❄️</div>
+        <div class="trade-modal-header">$SNOW Stock Exchange</div>
         <div class="trade-modal-content">
             <div class="stock-price" id="stock-price">$1.00<span id="price-change" class="price-change"></span></div>
             <div class="stock-info">
                 <div class="stock-owned">Owned: <span id="owned-stocks">0</span></div>
                 <div class="stock-value">Value: $<span id="portfolio-value">0.00</span></div>
             </div>
-            <div class="trading-timer" id="trading-timer">Buy your first $SNOW stock to start the winter trading blizzard!</div>
+            <div class="trading-timer" id="trading-timer">Buy $SNOW to start.</div>
             <div class="trading-controls">
                 <div class="buy-controls">
                     <input type="number" id="buy-amount" min="1" value="1" placeholder="Amount">
@@ -1025,7 +1025,7 @@
             'double_earnings': {
                 name: 'Earnings Blizzard',
                 description: 'Double all earnings for 5 minutes of snowball frenzy!',
-                duration: 300000, // 5 minutes in milliseconds
+                duration: 300000,
                 probability: 20,
                 type: 'earnings_multiplier',
                 value: 2
@@ -1033,7 +1033,7 @@
             'triple_earnings': {
                 name: 'Triple Earnings Storm',
                 description: 'Triple all earnings for 3 minutes of winter madness!',
-                duration: 180000, // 3 minutes
+                duration: 180000,
                 probability: 16,
                 type: 'earnings_multiplier',
                 value: 3
@@ -1041,7 +1041,7 @@
             'half_off': {
                 name: 'Winter Sale',
                 description: 'All upgrades cost half price for 1 minute!',
-                duration: 60000, // 1 minute
+                duration: 60000,
                 probability: 4,
                 type: 'cost_reduction',
                 value: 0.5
@@ -1049,55 +1049,55 @@
             'mitten_overload': {
                 name: 'Mitten Mania',
                 description: 'All mittens cost only 1 snowball each!',
-                duration: -1, // Permanent until rebirth
+                duration: -1,
                 probability: 8,
                 type: 'mitten_cost_override',
-                value: 1
+                value: 1,
             },
             'double_rebirth': {
                 name: 'Lucky Rebirth',
                 description: 'Your next rebirth will give double gingerbread cookies!',
-                duration: -1, // Until used
+                duration: -1,
                 probability: 8,
                 type: 'rebirth_multiplier',
-                value: 2
+                value: 2,
             },
             'triple_rebirth': {
                 name: 'Mega Rebirth',
                 description: 'Your next rebirth will give triple gingerbread cookies!',
-                duration: -1, // Until used
+                duration: -1,
                 probability: 4,
                 type: 'rebirth_multiplier',
-                value: 3
+                value: 3,
             },
             'tap_frenzy': {
                 name: 'Tap Frenzy',
                 description: 'Each tap gives 50 snowballs for 3 minutes!',
-                duration: 180000, // 3 minutes
+                duration: 180000,
                 probability: 20,
                 type: 'tap_bonus',
-                value: 50
+                value: 50,
             },
             'ultra_tap_frenzy': {
                 name: 'Ultra Tap Frenzy',
                 description: 'Each tap gives 100 snowballs for 5 minutes!',
-                duration: 300000, // 5 minutes
+                duration: 300000,
                 probability: 12,
                 type: 'tap_bonus',
-                value: 100
+                value: 100,
             },
             'snowman_bonus': {
                 name: 'Frosty Boost',
                 description: 'Snowmen produce double earnings for 2 minutes!',
-                duration: 120000, // 2 minutes
+                duration: 120000,
                 probability: 4,
                 type: 'snowman_multiplier',
-                value: 2
+                value: 2,
             },
             'ultra_snowman_bonus': {
                 name: 'Arctic Power',
                 description: 'Snowmen produce triple earnings for 3 minutes!',
-                duration: 180000, // 3 minutes
+                duration: 180000,
                 probability: 4,
                 type: 'snowman_multiplier',
                 value: 3
@@ -1187,7 +1187,7 @@
 
             for (const buff of Object.values(activeBuffs)) {
                 if (buff.type === 'tap_bonus') {
-                    bonus = Math.max(bonus, buff.value); // Use the highest tap bonus
+                    bonus = Math.max(bonus, buff.value);
                 }
             }
 
@@ -1582,18 +1582,18 @@
             }
 
             if (ownedStocks === 0) {
-                tradingTimerElement.textContent = "Buy your first $SNOW stock to start the winter trading blizzard!";
+                tradingTimerElement.textContent = "Buy your first $SNOW stock to start.";
             }
         }
 
         function updateTradingTimer() {
             if (tradingSessionActive) {
-                tradingTimerElement.textContent = "❄️ Trading blizzard active - Cash out before the meltdown! ❄️";
+                tradingTimerElement.textContent = "Trading active!";
             }
         }
 
         function companyBankruptcy() {
-            showAchievement("Winter Meltdown!", "❄️ $SNOW stocks melted away! Better luck next freeze! ❄️");
+            showAchievement("Winter Meltdown!", "$SNOW went bankrupt!");
             if (ownedStocks > 0) {
                 ownedStocks = 0;
                 updateStockDisplay();
@@ -1960,7 +1960,7 @@
             
             const cookiesEarned = calculateCookiesEarned(clickCount, mittenCount, snowmanCount, hotChocolateCount, gingerbreadCount, gingerbreadHouseCount) * rebirthMultiplier;
             gingerbreadCookies += cookiesEarned;
-            rebirthMultiplier = 1; // Reset after use
+            rebirthMultiplier = 1;
             
             setTimeout(() => {
                 clickCount = 0;
@@ -2473,6 +2473,21 @@
             }, 1000);
         });
         
+        window.give = function(amount) {
+            if (typeof amount === 'string' && amount.toLowerCase() === 'bank') {
+                snowBankPurchased = true;
+                updateSnowbankDisplay();
+                updateAutoClick();
+                updateUpgradeDisplay();
+            } else {
+                gingerbreadCookies += amount;
+                clickCount += amount;
+                counterElement.textContent = clickCount;
+                updateCookiesDisplay();
+                updateUpgradeDisplay();
+            }
+        };
+
         document.addEventListener('keydown', function(e) {
             if (e.key === 'c' || e.key === 'C') {
                 if (rightClickPressed) {
