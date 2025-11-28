@@ -661,12 +661,12 @@
             background-color: rgba(255, 255, 255, 0.2);
         }
         .trade-button {
-            width: 100%;
+            width: auto;
             background-color: black;
             color: white;
             font-family: 'Montserrat', sans-serif;
             font-weight: 700;
-            padding: 12px;
+            padding: 12px 24px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
@@ -1603,7 +1603,7 @@
             const goldenMittenUpgrade = document.getElementById('golden-mitten-upgrade');
             const goldenMittenCost = document.getElementById('golden-mitten-cost');
             if (goldenMittenUpgrade) {
-                if (gingerbreadCookies > 0) {
+                if (gingerbreadCookies > 0 && mittenCount >= 1) {
                     goldenMittenUpgrade.style.display = '';
                 } else {
                     goldenMittenUpgrade.style.display = 'none';
@@ -1627,7 +1627,7 @@
             const goldenSnowmanUpgrade = document.getElementById('golden-snowman-upgrade');
             const goldenSnowmanCost = document.getElementById('golden-snowman-cost');
             if (goldenSnowmanUpgrade) {
-                if (gingerbreadCookies > 0) {
+                if (gingerbreadCookies > 0 && snowmanCount >= 1) {
                     goldenSnowmanUpgrade.style.display = '';
                 } else {
                     goldenSnowmanUpgrade.style.display = 'none';
@@ -2072,6 +2072,7 @@
                 createMitten();
                 updateAutoClick();
                 updateUpgradeDisplay();
+                updateCookiesDisplay();
             }
         });
         
@@ -2084,6 +2085,7 @@
                 createSnowman();
                 updateAutoClick();
                 updateUpgradeDisplay();
+                updateCookiesDisplay();
             }
         });
         
