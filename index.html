@@ -82,7 +82,7 @@
         .upgrades {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 24px;
         }
         .upgrade {
             background-color: black;
@@ -94,6 +94,12 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+        }
+        .upgrade#golden-mitten-upgrade {
+            margin-top: 24px;
+        }
+        .upgrade#golden-snowman-upgrade {
+            margin-top: 24px;
         }
         .upgrade-content {
             flex: 1;
@@ -120,37 +126,6 @@
         .upgrade-cost {
             font-size: 12px;
             opacity: 0.8;
-        }
-        .upgrades-divider {
-            width: 100%;
-            height: 1px;
-            background-color: rgba(255, 255, 255, 0.2);
-            margin: 20px 0;
-            display: none;
-        }
-        .upgrades-divider.visible {
-            display: block;
-        }
-        .gingerbread-upgrades-section {
-            display: none;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .gingerbread-upgrades-section.visible {
-            display: flex;
-        }
-        .gingerbread-upgrades-title {
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 700;
-            font-size: 18px;
-            color: white;
-            margin-bottom: 12px;
-        }
-        .gingerbread-upgrades-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            width: 100%;
         }
         .counter {
             font-family: 'Montserrat', sans-serif;
@@ -491,10 +466,6 @@
             display: block;
         }
         .cookies-display {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            z-index: 10001;
             background-color: black;
             color: white;
             font-family: 'Montserrat', sans-serif;
@@ -503,6 +474,7 @@
             border-radius: 4px;
             pointer-events: auto;
             display: none;
+            margin-top: auto;
         }
         .cookies-display.visible {
             display: block;
@@ -856,6 +828,10 @@
             </div>
             <button class="trade-button" id="trade-button" style="display: none;">Tap to Trade</button>
         </div>
+        <div class="cookies-display" id="cookies-display">
+            <div class="cookies-display-title">Gingerbread Cookies:</div>
+            <div class="cookies-display-count" id="cookies-count">0</div>
+        </div>
     </div>
     <div class="main-content">
         <div class="counter" id="counter">0</div>
@@ -900,25 +876,19 @@
                     <div class="upgrade-cost" id="snowbank-cost">Cost: 10000</div>
                 </div>
             </div>
-        </div>
-        <div class="upgrades-divider" id="gingerbread-upgrades-divider"></div>
-        <div class="gingerbread-upgrades-section" id="gingerbread-upgrades-section">
-            <div class="gingerbread-upgrades-title">Gingerbread Upgrades</div>
-            <div class="upgrades">
-                <div class="upgrade" id="golden-mitten-upgrade">
-                    <div class="upgrade-content">
-                        <div class="upgrade-title">Golden Mitten</div>
-                        <div class="upgrade-cost" id="golden-mitten-cost">Cost: 1 Gingerbread Cookie</div>
-                    </div>
-                    <img src="golden_mitten.png" alt="Golden Mitten" class="upgrade-image">
+            <div class="upgrade" id="golden-mitten-upgrade" style="display: none;">
+                <div class="upgrade-content">
+                    <div class="upgrade-title">Golden Mitten</div>
+                    <div class="upgrade-cost" id="golden-mitten-cost">Cost: 1 Gingerbread Cookie</div>
                 </div>
-                <div class="upgrade" id="golden-snowman-upgrade">
-                    <div class="upgrade-content">
-                        <div class="upgrade-title">Golden Snowman</div>
-                        <div class="upgrade-cost" id="golden-snowman-cost">Cost: 3 Gingerbread Cookies</div>
-                    </div>
-                    <img src="golden_snowman.png" alt="Golden Snowman" class="upgrade-image">
+                <img src="golden_mitten.png" alt="Golden Mitten" class="upgrade-image">
+            </div>
+            <div class="upgrade" id="golden-snowman-upgrade" style="display: none;">
+                <div class="upgrade-content">
+                    <div class="upgrade-title">Golden Snowman</div>
+                    <div class="upgrade-cost" id="golden-snowman-cost">Cost: 3 Gingerbread Cookies</div>
                 </div>
+                <img src="golden_snowman.png" alt="Golden Snowman" class="upgrade-image">
             </div>
         </div>
     </div>
@@ -927,10 +897,6 @@
     <div class="crack-particles" id="crack-particles"></div>
     <button class="achievements-button" id="achievements-button">Achievements</button>
     <button class="rebirth-button" id="rebirth-button">Rebirth</button>
-    <div class="cookies-display" id="cookies-display">
-        <div class="cookies-display-title">Gingerbread Cookies:</div>
-        <div class="cookies-display-count" id="cookies-count">0</div>
-    </div>
     <div class="rebirth-modal-overlay" id="rebirth-modal-overlay"></div>
     <div class="rebirth-modal" id="rebirth-modal">
         <div class="rebirth-modal-header">Rebirth</div>
@@ -1637,6 +1603,12 @@
             const goldenMittenUpgrade = document.getElementById('golden-mitten-upgrade');
             const goldenMittenCost = document.getElementById('golden-mitten-cost');
             if (goldenMittenUpgrade) {
+                if (gingerbreadCookies > 0) {
+                    goldenMittenUpgrade.style.display = '';
+                } else {
+                    goldenMittenUpgrade.style.display = 'none';
+                }
+                
                 if (goldenMittenPurchased) {
                     goldenMittenUpgrade.classList.add('purchased');
                     goldenMittenUpgrade.classList.remove('disabled');
@@ -1655,6 +1627,12 @@
             const goldenSnowmanUpgrade = document.getElementById('golden-snowman-upgrade');
             const goldenSnowmanCost = document.getElementById('golden-snowman-cost');
             if (goldenSnowmanUpgrade) {
+                if (gingerbreadCookies > 0) {
+                    goldenSnowmanUpgrade.style.display = '';
+                } else {
+                    goldenSnowmanUpgrade.style.display = 'none';
+                }
+                
                 if (goldenSnowmanPurchased) {
                     goldenSnowmanUpgrade.classList.add('purchased');
                     goldenSnowmanUpgrade.classList.remove('disabled');
@@ -1673,19 +1651,23 @@
         
         function updateCookiesDisplay() {
             const cookiesDisplay = document.getElementById('cookies-display');
-            const gingerbreadSection = document.getElementById('gingerbread-upgrades-section');
-            const gingerbreadDivider = document.getElementById('gingerbread-upgrades-divider');
             document.getElementById('cookies-count').textContent = gingerbreadCookies;
             if (gingerbreadCookies > 0) {
                 cookiesDisplay.classList.add('visible');
-                gingerbreadSection.classList.add('visible');
-                gingerbreadDivider.classList.add('visible');
             } else {
                 cookiesDisplay.classList.remove('visible');
-                gingerbreadSection.classList.remove('visible');
-                gingerbreadDivider.classList.remove('visible');
             }
             updateGingerbreadUpgradesDisplay();
+            updateLeftSidebarVisibility();
+        }
+        
+        function updateLeftSidebarVisibility() {
+            const leftSidebar = document.querySelector('.left-sidebar');
+            if (snowmanCount > 0 || gingerbreadCount > 0 || gingerbreadHouseCount > 0 || hotChocolateCount > 0 || snowBankPurchased || gingerbreadCookies > 0) {
+                leftSidebar.classList.add('visible');
+            } else {
+                leftSidebar.classList.remove('visible');
+            }
         }
         
         function rebirth() {
@@ -1761,6 +1743,7 @@
                 updateAutoClick();
                 updateRebirthButton();
                 updateCookiesDisplay();
+                updateLeftSidebarVisibility();
                 
                 snowball.classList.remove('crack');
                 body.classList.remove('crack-shake');
