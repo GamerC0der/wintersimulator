@@ -712,6 +712,25 @@
             text-align: center;
             margin: 20px 0;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .price-change {
+            font-size: 16px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        .price-change.positive {
+            background-color: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        .price-change.negative {
+            background-color: rgba(255, 0, 0, 0.2);
+            color: #ff4444;
         }
         .stock-info {
             display: flex;
@@ -927,7 +946,7 @@
     <div class="trade-modal" id="trade-modal">
         <div class="trade-modal-header">$SNOW Stock Trading</div>
         <div class="trade-modal-content">
-            <div class="stock-price" id="stock-price">$1.00</div>
+            <div class="stock-price" id="stock-price">$1.00<span id="price-change" class="price-change"></span></div>
             <div class="stock-info">
                 <div class="stock-owned">Owned: <span id="owned-stocks">0</span></div>
                 <div class="stock-value">Value: $<span id="portfolio-value">0.00</span></div>
@@ -1002,6 +1021,7 @@
         let tradingSessionInterval = null;
         let sessionStartTime = 0;
         let priceEverOver105 = false;
+        let previousPrice = 1.00;
         const snowmanNames = [
             "Frosty", "Snowball", "Chilly", "Icicle", "Winter", "Blizzard",
             "Powder", "Glacier", "Snowflake", "Arctic", "Polar", "North"
@@ -1294,7 +1314,33 @@
         }
 
         function updateStockDisplay() {
-            stockPriceElement.textContent = '$' + stockPrice.toFixed(2);
+            stockPriceElement.firstChild.textContent = '$' + stockPrice.toFixed(2);
+
+            const priceChange = stockPrice - previousPrice;
+            const priceChangeElement = document.getElementById('price-change');
+
+            if (priceChange > 0) {
+                priceChangeElement.textContent = '+' + priceChange.toFixed(2);
+                priceChangeElement.className = 'price-change positive';
+            } else if (priceChange < 0) {
+                priceChangeElement.textContent = priceChange.toFixed(2);
+                priceChangeElement.className = 'price-change negative';
+            } else {
+                priceChangeElement.textContent = '';
+                priceChangeElement.className = 'price-change';
+            }
+
+            if (priceChange !== 0) {
+                setTimeout(() => {
+                    priceChangeElement.style.opacity = '0';
+                    setTimeout(() => {
+                        priceChangeElement.style.opacity = '1';
+                    }, 200);
+                }, 2000);
+            }
+
+            previousPrice = stockPrice;
+
             ownedStocksElement.textContent = ownedStocks;
             portfolioValueElement.textContent = (ownedStocks * stockPrice).toFixed(2);
 
@@ -1312,6 +1358,7 @@
             sell100Button.style.opacity = canSell ? '1' : '0.5';
         }
 
+
         function startTradingSession() {
             if (tradingSessionActive) return;
 
@@ -1324,12 +1371,12 @@
 
             stockPriceInterval = setInterval(() => {
                 fluctuateStockPrice();
-            }, 500 + Math.random() * 500);
+            }, 250 + Math.random() * 250);
 
-            const crashTime = 10 + (Math.random() * 2 - 1) * 5;
+            const crashTime = 10 + Math.random() * 20; 
             setTimeout(() => {
                 companyBankruptcy();
-            }, crashTime * 1000);
+            }, crashTime * 1000); 
         }
 
         function stopTradingSession() {
@@ -1413,9 +1460,10 @@
             updateStockDisplay();
         });
 
+
         buyStockButton.addEventListener('click', function(e) {
             e.stopPropagation();
-            const buyAmount = parseInt(buyAmountInput.value) || 1;ß
+            const buyAmount = parseInt(buyAmountInput.value) || 1;
             if (clickCount >= buyAmount && buyAmount >= 1) {
                 clickCount -= buyAmount;
                 counterElement.textContent = clickCount;
