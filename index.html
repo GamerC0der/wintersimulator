@@ -51,6 +51,20 @@
             justify-content: flex-start;
             padding: 20px;
             box-sizing: border-box;
+            overflow-y: auto;
+        }
+        .left-sidebar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .left-sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .left-sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+        .left-sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
         }
         .left-sidebar.visible {
             display: flex;
@@ -1401,7 +1415,7 @@
 
         buyStockButton.addEventListener('click', function(e) {
             e.stopPropagation();
-            const buyAmount = parseInt(buyAmountInput.value) || 1;
+            const buyAmount = parseInt(buyAmountInput.value) || 1;ß
             if (clickCount >= buyAmount && buyAmount >= 1) {
                 clickCount -= buyAmount;
                 counterElement.textContent = clickCount;
