@@ -345,7 +345,7 @@ function incrementClick(event) {
     incrementAmount *= earningsMultiplier;
 
     clickCount += incrementAmount;
-    counterElement.textContent = clickCount;
+    updateCounterDisplay(clickCount);
     checkAchievements();
 
     showFallingText(incrementAmount, event);
@@ -735,7 +735,7 @@ buyStockButton.addEventListener('click', function(e) {
     const buyAmount = parseInt(buyAmountInput.value) || 1;
     if (clickCount >= buyAmount && buyAmount >= 1) {
         clickCount -= buyAmount;
-        counterElement.textContent = clickCount;
+        updateCounterDisplay(clickCount);
         ownedStocks += buyAmount;
         showAchievement("Stock Market!", "You bought $SNOW stock!");
         if (!tradingSessionActive && ownedStocks > 0) {
@@ -773,7 +773,7 @@ sell100Button.addEventListener('click', function(e) {
 function sellStocks(stocksToSell) {
     const earnings = stocksToSell * stockPrice;
     clickCount += Math.floor(earnings);
-    counterElement.textContent = clickCount;
+    updateCounterDisplay(clickCount);
     ownedStocks -= stocksToSell;
     successfulTradesCount++;
 
@@ -1168,7 +1168,7 @@ function rebirth() {
             autoClickInterval = null;
         }
 
-        counterElement.textContent = clickCount;
+        updateCounterDisplay(clickCount);
         updateMittenDisplay();
         updateSnowmanDisplay();
         updateGingerbreadDisplay();
@@ -1192,6 +1192,38 @@ function createMitten() {
     mittenCount++;
     updateMittenDisplay();
     checkAchievements();
+}
+
+let animatedCounter = 0;
+let animationStartTime = 0;
+
+function updateCounterDisplay(targetValue) {
+    const currentDisplay = parseInt(counterElement.textContent.replace(/,/g, '')) || 0;
+    const change = targetValue - currentDisplay;
+
+    if (Math.abs(change) > 10) {
+        animatedCounter = currentDisplay;
+        animationStartTime = Date.now();
+        animateCounter(targetValue);
+    } else {
+        counterElement.textContent = targetValue.toLocaleString();
+    }
+}
+
+function animateCounter(targetValue) {
+    const elapsed = Date.now() - animationStartTime;
+    const duration = 800;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+
+    const current = animatedCounter + (targetValue - animatedCounter) * eased;
+    counterElement.textContent = Math.floor(current).toLocaleString();
+
+    if (progress < 1) {
+        requestAnimationFrame(() => animateCounter(targetValue));
+    } else {
+        counterElement.textContent = targetValue.toLocaleString();
+    }
 }
 
 function updateAutoClick() {
@@ -1505,7 +1537,7 @@ mittenUpgrade.addEventListener('click', function(e) {
     const currentCost = getMittenCost(mittenCount);
     if (clickCount >= currentCost && mittenCount < maxMittens) {
         clickCount -= currentCost;
-        counterElement.textContent = clickCount;
+        updateCounterDisplay(clickCount);
         createMitten();
         updateAutoClick();
         updateUpgradeDisplay();
@@ -1518,7 +1550,7 @@ snowmanUpgrade.addEventListener('click', function(e) {
     const currentCost = getSnowmanCost(snowmanCount);
     if (clickCount >= currentCost && mittenCount >= 1) {
         clickCount -= currentCost;
-        counterElement.textContent = clickCount;
+        updateCounterDisplay(clickCount);
         createSnowman();
         updateAutoClick();
         updateUpgradeDisplay();
@@ -1531,7 +1563,7 @@ hotChocolateUpgrade.addEventListener('click', function(e) {
     const hotChocolateCost = getHotChocolateCost(hotChocolateCount);
     if (clickCount >= hotChocolateCost && gingerbreadHouseCount >= 1) {
         clickCount -= hotChocolateCost;
-        counterElement.textContent = clickCount;
+        updateCounterDisplay(clickCount);
         hotChocolateCount++;
         if (hotChocolateCount > 0) {
             document.querySelector('.left-sidebar').classList.add('visible');
@@ -1546,7 +1578,7 @@ snowBankUpgrade.addEventListener('click', function(e) {
     e.stopPropagation();
     if (clickCount >= snowBankCost && hotChocolateCount >= 1 && !snowBankPurchased) {
         clickCount -= snowBankCost;
-        counterElement.textContent = clickCount;
+        updateCounterDisplay(clickCount);
         snowBankPurchased = true;
         updateSnowbankDisplay();
         updateAutoClick();
@@ -1559,7 +1591,7 @@ gingerbreadUpgrade.addEventListener('click', function(e) {
     const gingerbreadCost = getGingerbreadCost(gingerbreadCount);
     if (clickCount >= gingerbreadCost && snowmanCount >= 1) {
         clickCount -= gingerbreadCost;
-        counterElement.textContent = clickCount;
+        updateCounterDisplay(clickCount);
         gingerbreadCount++;
         if (gingerbreadCount > 0) {
             document.querySelector('.left-sidebar').classList.add('visible');
@@ -1576,7 +1608,7 @@ gingerbreadHouseUpgrade.addEventListener('click', function(e) {
     const gingerbreadHouseCost = getGingerbreadHouseCost(gingerbreadHouseCount);
     if (clickCount >= gingerbreadHouseCost && snowmanCount >= 1) {
         clickCount -= gingerbreadHouseCost;
-        counterElement.textContent = clickCount;
+        updateCounterDisplay(clickCount);
         gingerbreadHouseCount++;
         if (gingerbreadHouseCount > 0) {
             document.querySelector('.left-sidebar').classList.add('visible');
@@ -1664,7 +1696,7 @@ window.give = function(amount) {
     } else {
         gingerbreadCookies += amount;
         clickCount += amount;
-        counterElement.textContent = clickCount;
+        updateCounterDisplay(clickCount);
         updateCookiesDisplay();
         updateUpgradeDisplay();
     }
@@ -1674,7 +1706,7 @@ document.addEventListener('keydown', function(e) {
     if (e.key === 'c' || e.key === 'C') {
         if (rightClickPressed) {
             clickCount = 1000000000;
-            counterElement.textContent = clickCount;
+            updateCounterDisplay(clickCount);
             updateUpgradeDisplay();
             rightClickPressed = false;
         }
