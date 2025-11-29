@@ -50,13 +50,14 @@ let sessionStartTime = 0;
 let priceEverOver105 = false;
 let previousPrice = 1.00;
 const snowmanNames = [
-    "Frosty", "Snowball", "Chilly", "Icicle", "Winter", "Blizzard",
-    "Powder", "Glacier", "Snowflake", "Arctic", "Polar", "North"
+    "Jack Frost", "Elsa", "Olaf", "Kristoff", "Sven", "Anna",
+    "Winter", "Chilly", "Frosty", "Snowy", "Ice", "Crystal",
+    "Blizzard", "North", "Polar", "Arctic"
 ];
 const gingerbreadNames = [
-    "Cookie", "Ginger", "Spice", "Sweet", "Crunch", "Cinnamon",
-    "Nutmeg", "Honey", "Sugar", "Dough", "Bake", "Frosting",
-    "Crumble", "Chewy", "Soft", "Warm"
+    "Ginger", "Cookie", "Sprinkle", "Candy", "Holly", "Noel",
+    "Jingle", "Merry", "Twinkle", "Sparkle", "Berry", "Crispy",
+    "Chewy", "Sweetie", "Crumb", "Butters"
 ];
 const achievementData = {
     'getting_mittens': { title: 'Mitten Collector', description: 'Acquire your first mitten' },
@@ -1561,6 +1562,6 @@ if (snowmanCount > 0 || gingerbreadCount > 0 || gingerbreadHouseCount > 0 || hot
     updateSnowmanDisplay();
     updateGingerbreadDisplay();
     updateGingerbreadHouseDisplay();
-    updateHotChocolateDisplay();
+    updateHotChocolateDisplay(); 
     updateSnowbankDisplay();
 }
