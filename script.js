@@ -42,6 +42,7 @@ let rebirthMultiplier = 1;
 
 let stockPrice = 1.00;
 let ownedStocks = 0;
+let successfulTradesCount = 0;
 let tradingSessionActive = false;
 let tradingSessionTime = 0;
 let stockPriceInterval = null;
@@ -418,22 +419,25 @@ function showFallingText(amount, event) {
 
     let x, y;
     if (event && event.clientX && event.clientY) {
-        x = event.clientX + (Math.random() - 0.5) * 100;
-        y = event.clientY - 20;
+        x = event.clientX + (Math.random() - 0.5) * 120;
+        y = event.clientY - 15 - Math.random() * 10;
     } else {
         const rect = snowballContainer.getBoundingClientRect();
-        x = rect.left + rect.width / 2 + (Math.random() - 0.5) * 100;
-        y = rect.top + rect.height / 2 - 20;
+        x = rect.left + rect.width / 2 + (Math.random() - 0.5) * 80;
+        y = rect.top + rect.height / 2 - 20 - Math.random() * 15;
     }
+    const viewportWidth = window.innerWidth;
+    const textWidth = 60;
+    x = Math.max(textWidth / 2, Math.min(viewportWidth - textWidth / 2, x));
 
     textElement.style.left = x + 'px';
     textElement.style.top = y + 'px';
-    textElement.style.animationDuration = (Math.random() * 0.5 + 1) + 's';
+    textElement.style.animationDuration = (Math.random() * 0.4 + 0.8) + 's';
     document.body.appendChild(textElement);
 
     setTimeout(() => {
         textElement.remove();
-    }, 2000);
+    }, 1800);
 }
 
 function showAchievement(title, description) {
@@ -567,7 +571,7 @@ const tradeModalOverlay = document.getElementById('trade-modal-overlay');
 const tradeClose = document.getElementById('trade-close');
 
 function showTradeModal() {
-    tradeModal.classList.add('visible');
+    tradeModal.classList.add('visible')
     tradeModalOverlay.classList.add('visible');
     updateStockDisplay();
 }
@@ -771,6 +775,7 @@ function sellStocks(stocksToSell) {
     clickCount += Math.floor(earnings);
     counterElement.textContent = clickCount;
     ownedStocks -= stocksToSell;
+    successfulTradesCount++;
 
     updateStockDisplay();
     updateUpgradeDisplay();
@@ -834,55 +839,138 @@ function updateRebirthButton() {
     }
 }
 
-function calculateCookiesEarned(totalSnowballs, mittens, snowmen, hotChocolates, gingerbreadMen, gingerbreadHouses) {
+function calculateCookiesEarned(totalSnowballs, mittens, snowmen, hotChocolates, gingerbreadMen, gingerbreadHouses, snowBankPurchased, successfulTradesCount) {
     let cookies = 0;
 
     const snowballThresholds = [
-        { threshold: 1000, cookies: 1 },
-        { threshold: 10000, cookies: 4 },
-        { threshold: 25000, cookies: 3 },
+        { threshold: 1000, cookies: 3 },
+        { threshold: 1500, cookies: 1 },
+        { threshold: 2000, cookies: 2 },
+        { threshold: 3000, cookies: 3 },
+        { threshold: 3200, cookies: 1 },
+        { threshold: 3400, cookies: 1 },
+        { threshold: 3500, cookies: 2 },
+        { threshold: 4000, cookies: 4 },
+        { threshold: 5000, cookies: 3 },
+        { threshold: 6000, cookies: 1 },
+        { threshold: 8000, cookies: 1 },
+        { threshold: 10000, cookies: 2 },
+        { threshold: 11000, cookies: 1 },
+        { threshold: 12000, cookies: 1 },
+        { threshold: 13000, cookies: 1 },
+        { threshold: 14000, cookies: 1 },
+        { threshold: 15000, cookies: 2 },
+        { threshold: 16000, cookies: 1 },
+        { threshold: 17000, cookies: 1 },
+        { threshold: 18000, cookies: 1 },
+        { threshold: 19000, cookies: 1 },
+        { threshold: 20000, cookies: 3 },
+        { threshold: 25000, cookies: 2 },
         { threshold: 30000, cookies: 2 },
-        { threshold: 50000, cookies: 5 },
-        { threshold: 75000, cookies: 6 },
+        { threshold: 35000, cookies: 1 },
+        { threshold: 40000, cookies: 3 },
+        { threshold: 50000, cookies: 4 },
+        { threshold: 75000, cookies: 2 },
+        { threshold: 80000, cookies: 1 },
         { threshold: 100000, cookies: 2 },
+        { threshold: 125000, cookies: 1 },
+        { threshold: 150000, cookies: 2 },
+        { threshold: 200000, cookies: 4 },
         { threshold: 250000, cookies: 3 },
-        { threshold: 500000, cookies: 8 },
-        { threshold: 550000, cookies: 1 },
+        { threshold: 300000, cookies: 4 },
+        { threshold: 310000, cookies: 1 },
+        { threshold: 325000, cookies: 2 },
+        { threshold: 350000, cookies: 2 },
+        { threshold: 355000, cookies: 1 },
+        { threshold: 375000, cookies: 3 },
+        { threshold: 380000, cookies: 1 },
+        { threshold: 400000, cookies: 2 },
+        { threshold: 450000, cookies: 3 },
+        { threshold: 500000, cookies: 6 },
+        { threshold: 505000, cookies: 1 },
+        { threshold: 510000, cookies: 1 },
+        { threshold: 530000, cookies: 1 },
+        { threshold: 550000, cookies: 2 },
+        { threshold: 560000, cookies: 1 },
+        { threshold: 575000, cookies: 1 },
         { threshold: 600000, cookies: 2 },
-        { threshold: 750000, cookies: 5 },
+        { threshold: 700000, cookies: 1 },
         { threshold: 800000, cookies: 1 },
-        { threshold: 900000, cookies: 3 },
+        { threshold: 850000, cookies: 1 },
+        { threshold: 900000, cookies: 2 },
         { threshold: 910000, cookies: 1 },
-        { threshold: 950000, cookies: 4 },
-        { threshold: 975000, cookies: 1 },
-        { threshold: 1000000, cookies: 7 },
-        { threshold: 1200000, cookies: 3 },
+        { threshold: 920000, cookies: 1 },
+        { threshold: 930000, cookies: 1 },
+        { threshold: 940000, cookies: 1 },
+        { threshold: 950000, cookies: 2 },
+        { threshold: 1000000, cookies: 10 },
+        { threshold: 1100000, cookies: 1 },
+        { threshold: 1200000, cookies: 1 },
         { threshold: 1300000, cookies: 1 },
-        { threshold: 1400000, cookies: 1 },
-        { threshold: 1600000, cookies: 2 },
-        { threshold: 1750000, cookies: 4 },
-        { threshold: 1800000, cookies: 1 },
-        { threshold: 1900000, cookies: 2 },
-        { threshold: 2000000, cookies: 5 },
-        { threshold: 2200000, cookies: 3 },
-        { threshold: 2400000, cookies: 4 },
+        { threshold: 1400000, cookies: 2 },
+        { threshold: 1500000, cookies: 3 },
+        { threshold: 1600000, cookies: 1 },
+        { threshold: 1650000, cookies: 1 },
+        { threshold: 1700000, cookies: 2 },
+        { threshold: 1710000, cookies: 1 },
+        { threshold: 1740000, cookies: 1 },
+        { threshold: 1750000, cookies: 1 },
+        { threshold: 1800000, cookies: 2 },
+        { threshold: 1900000, cookies: 3 },
+        { threshold: 2000000, cookies: 2 },
+        { threshold: 2100000, cookies: 1 },
+        { threshold: 2300000, cookies: 1 },
+        { threshold: 2400000, cookies: 1 },
+        { threshold: 2420000, cookies: 1 },
+        { threshold: 2440000, cookies: 1 },
+        { threshold: 2450000, cookies: 1 },
         { threshold: 2500000, cookies: 1 },
-        { threshold: 2700000, cookies: 3 },
-        { threshold: 2750000, cookies: 1 },
-        { threshold: 2800000, cookies: 1 },
-        { threshold: 2900000, cookies: 2 },
-        { threshold: 3000000, cookies: 4 },
-        { threshold: 3300000, cookies: 5 },
-        { threshold: 3500000, cookies: 2 },
-        { threshold: 3600000, cookies: 3 },
-        { threshold: 3610000, cookies: 1 },
-        { threshold: 3630000, cookies: 1 },
-        { threshold: 3650000, cookies: 1 },
-        { threshold: 3700000, cookies: 2 },
-        { threshold: 3800000, cookies: 3 },
-        { threshold: 3950000, cookies: 1 },
-        { threshold: 4000000, cookies: 2 },
-        { threshold: 5000000, cookies: 3 }
+        { threshold: 2600000, cookies: 1 },
+        { threshold: 2700000, cookies: 7 },
+        { threshold: 2800000, cookies: 2 },
+        { threshold: 2900000, cookies: 1 },
+        { threshold: 3000000, cookies: 1 },
+        { threshold: 3200000, cookies: 2 },
+        { threshold: 3400000, cookies: 3 },
+        { threshold: 3500000, cookies: 1 },
+        { threshold: 3750000, cookies: 1 },
+        { threshold: 3900000, cookies: 1 },
+        { threshold: 4000000, cookies: 4 },
+        { threshold: 4100000, cookies: 1 },
+        { threshold: 4300000, cookies: 2 },
+        { threshold: 4500000, cookies: 3 },
+        { threshold: 4750000, cookies: 2 },
+        { threshold: 4900000, cookies: 1 },
+        { threshold: 5000000, cookies: 5 },
+        { threshold: 6000000, cookies: 6 },
+        { threshold: 7000000, cookies: 7 },
+        { threshold: 8000000, cookies: 8 },
+        { threshold: 9000000, cookies: 9 },
+        { threshold: 10000000, cookies: 10 },
+        { threshold: 10500000, cookies: 1 },
+        { threshold: 11000000, cookies: 1 },
+        { threshold: 12000000, cookies: 12 },
+        { threshold: 13000000, cookies: 13 },
+        { threshold: 14000000, cookies: 14 },
+        { threshold: 15000000, cookies: 15 },
+        { threshold: 15100000, cookies: 1 },
+        { threshold: 15200000, cookies: 1 },
+        { threshold: 15300000, cookies: 3 },
+        { threshold: 15400000, cookies: 4 },
+        { threshold: 15500000, cookies: 5 },
+        { threshold: 15600000, cookies: 6 },
+        { threshold: 15700000, cookies: 7 },
+        { threshold: 15800000, cookies: 1 },
+        { threshold: 15900000, cookies: 1 },
+        { threshold: 16000000, cookies: 16 },
+        { threshold: 17000000, cookies: 17 },
+        { threshold: 18000000, cookies: 18 },
+        { threshold: 19000000, cookies: 19 },
+        { threshold: 20000000, cookies: 20 },
+        { threshold: 30000000, cookies: 30 },
+        { threshold: 40000000, cookies: 40 },
+        { threshold: 45000000, cookies: 5 },
+        { threshold: 50000000, cookies: 50 }
     ];
 
     for (const { threshold, cookies: cookieReward } of snowballThresholds) {
@@ -901,6 +989,23 @@ function calculateCookiesEarned(totalSnowballs, mittens, snowmen, hotChocolates,
     }
     if (gingerbreadHouses >= 25) {
         cookies += 2;
+    }
+
+    if (snowBankPurchased) {
+        cookies += 10;
+    }
+
+    if (successfulTradesCount >= 1) {
+        cookies += 1;
+    }
+    if (successfulTradesCount >= 3) {
+        cookies += 2;
+    }
+    if (successfulTradesCount >= 5) {
+        cookies += 3;
+    }
+    if (successfulTradesCount >= 10) {
+        cookies += 5;
     }
 
     return cookies;
@@ -1034,7 +1139,7 @@ function rebirth() {
         particlesContainer.appendChild(particle);
     }
 
-    const cookiesEarned = calculateCookiesEarned(clickCount, mittenCount, snowmanCount, hotChocolateCount, gingerbreadCount, gingerbreadHouseCount) * rebirthMultiplier;
+    const cookiesEarned = calculateCookiesEarned(clickCount, mittenCount, snowmanCount, hotChocolateCount, gingerbreadCount, gingerbreadHouseCount, snowBankPurchased, successfulTradesCount) * rebirthMultiplier;
     gingerbreadCookies += cookiesEarned;
     rebirthMultiplier = 1;
 
@@ -1046,6 +1151,7 @@ function rebirth() {
         gingerbreadCount = 0;
         gingerbreadHouseCount = 0;
         snowBankPurchased = false;
+        successfulTradesCount = 0;
 
         for (const buffId in activeBuffs) {
             deactivateBuff(buffId);
