@@ -479,6 +479,21 @@ body.crack-shake {
 .achievements-search::placeholder {
     color: rgba(255, 255, 255, 0.5);
 }
+.upgrades-search {
+    width: 100%;
+    padding: 10px;
+    background-color: white;
+    border: 2px solid black;
+    border-radius: 4px;
+    color: black;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 14px;
+    box-sizing: border-box;
+    margin-bottom: 16px;
+}
+.upgrades-search::placeholder {
+    color: rgba(0, 0, 0, 0.5);
+}
 .achievements-list {
     overflow-y: auto;
     flex: 1;
@@ -849,4 +864,42 @@ body.crack-shake {
     opacity: 0.5;
     cursor: not-allowed;
     transform: none;
+}
+.start-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    z-index: 10001;
+    display: none;
+    pointer-events: auto;
+}
+.start-modal-overlay.visible {
+    display: block;
+}
+.start-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10002;
+    background-color: black;
+    color: white;
+    font-family: 'Quicksand', sans-serif;
+    width: 400px;
+    border-radius: 4px;
+    padding: 24px;
+    box-sizing: border-box;
+    display: none;
+    flex-direction: column;
+    pointer-events: auto;
+}
+.start-modal.visible {
+    display: flex;
+}
+.start-modal-content {
+    min-height: 100px;
 }

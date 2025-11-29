@@ -530,9 +530,55 @@ function renderAchievementsList(searchTerm = '') {
     });
 }
 
+function filterUpgrades(searchTerm = '') {
+    const upgrades = document.querySelectorAll('.upgrades .upgrade');
+
+    upgrades.forEach(upgrade => {
+        if (!searchTerm) {
+            upgrade.style.removeProperty('display');
+            return;
+        }
+
+        const title = upgrade.querySelector('.upgrade-title').textContent.toLowerCase();
+        const cost = upgrade.querySelector('.upgrade-cost').textContent.toLowerCase();
+
+        const searchLower = searchTerm.toLowerCase();
+        const matches = title.includes(searchLower) || cost.includes(searchLower);
+
+        if (matches) {
+            upgrade.style.display = '';
+        } else {
+            upgrade.style.display = 'none';
+        }
+    });
+}
+
+function updateUpgradeSearchVisibility() {
+    const upgrades = document.querySelectorAll('.upgrades .upgrade');
+    let visibleCount = 0;
+
+    upgrades.forEach(upgrade => {
+        const computedStyle = window.getComputedStyle(upgrade);
+        if (computedStyle.display !== 'none') {
+            visibleCount++;
+        }
+    });
+
+    const searchField = document.getElementById('upgrades-search');
+    if (visibleCount >= 3) {
+        searchField.style.display = '';
+    } else {
+        searchField.style.display = 'none';
+        searchField.value = '';
+        filterUpgrades('');
+    }
+}
+
 const achievementsButton = document.getElementById('achievements-button');
 const achievementsPopover = document.getElementById('achievements-popover');
 const achievementsSearch = document.getElementById('achievements-search');
+
+const upgradesSearch = document.getElementById('upgrades-search');
 
 achievementsButton.addEventListener('click', function(e) {
     e.stopPropagation();
@@ -545,6 +591,10 @@ achievementsButton.addEventListener('click', function(e) {
 
 achievementsSearch.addEventListener('input', function(e) {
     renderAchievementsList(e.target.value);
+});
+
+upgradesSearch.addEventListener('input', function(e) {
+    filterUpgrades(e.target.value);
 });
 
 document.addEventListener('click', function(e) {
@@ -651,6 +701,8 @@ rebirthHighValueModalOverlay.addEventListener('click', function(e) {
 
 const tradeModal = document.getElementById('trade-modal');
 const tradeModalOverlay = document.getElementById('trade-modal-overlay');
+const startModal = document.getElementById('start-modal');
+const startModalOverlay = document.getElementById('start-modal-overlay');
 const tradeClose = document.getElementById('trade-close');
 
 function showTradeModal() {
@@ -1634,6 +1686,8 @@ function updateUpgradeDisplay() {
     } else {
         snowBankUpgrade.style.display = 'none';
     }
+
+    updateUpgradeSearchVisibility();
 }
 
 mittenUpgrade.addEventListener('click', function(e) {
@@ -1886,6 +1940,10 @@ if (snowmanCount > 0 || gingerbreadCount > 0 || gingerbreadHouseCount > 0 || hot
     updateSnowmanDisplay();
     updateGingerbreadDisplay();
     updateGingerbreadHouseDisplay();
-    updateHotChocolateDisplay(); 
+    updateHotChocolateDisplay();
     updateSnowbankDisplay();
 }
+
+// Show start modal
+startModal.classList.add('visible');
+startModalOverlay.classList.add('visible');
