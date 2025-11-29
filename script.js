@@ -54,7 +54,7 @@ const snowmanNames = [
     "Winter", "Chilly", "Frosty", "Snowy", "Ice", "Crystal",
     "Blizzard", "North", "Polar", "Arctic"
 ];
-const gingerbreadNames = [
+const gingerbreadNames = [ 
     "Ginger", "Cookie", "Sprinkle", "Candy", "Holly", "Noel",
     "Jingle", "Merry", "Twinkle", "Sparkle", "Berry", "Crispy",
     "Chewy", "Sweetie", "Crumb", "Butters"
@@ -332,7 +332,7 @@ function getGingerbreadHouseCost(count) {
     return Math.ceil(baseGingerbreadHouseCost * Math.pow(1.06, count));
 }
 
-function incrementClick() {
+function incrementClick(event) {
     let incrementAmount = 1;
 
     const tapBonus = getCurrentTapBonus();
@@ -346,6 +346,8 @@ function incrementClick() {
     clickCount += incrementAmount;
     counterElement.textContent = clickCount;
     checkAchievements();
+
+    showFallingText(incrementAmount, event);
 
     if (activeSnowflakes < 50) {
         activeSnowflakes++;
@@ -407,6 +409,31 @@ function updateMittenDisplay() {
         snowballContainer.appendChild(mitten);
         mittens = snowballContainer.querySelectorAll('.mitten');
     }
+}
+
+function showFallingText(amount, event) {
+    const textElement = document.createElement('div');
+    textElement.className = 'falling-text';
+    textElement.textContent = '+' + amount;
+
+    let x, y;
+    if (event && event.clientX && event.clientY) {
+        x = event.clientX + (Math.random() - 0.5) * 100;
+        y = event.clientY - 20;
+    } else {
+        const rect = snowballContainer.getBoundingClientRect();
+        x = rect.left + rect.width / 2 + (Math.random() - 0.5) * 100;
+        y = rect.top + rect.height / 2 - 20;
+    }
+
+    textElement.style.left = x + 'px';
+    textElement.style.top = y + 'px';
+    textElement.style.animationDuration = (Math.random() * 0.5 + 1) + 's';
+    document.body.appendChild(textElement);
+
+    setTimeout(() => {
+        textElement.remove();
+    }, 2000);
 }
 
 function showAchievement(title, description) {
@@ -1501,14 +1528,14 @@ snowball.addEventListener('click', function(e) {
     setTimeout(() => {
         snowball.classList.remove('clicked');
     }, 300);
-    incrementClick();
+    incrementClick(e);
     updateUpgradeDisplay();
     updateRebirthButton();
 });
 
 document.body.addEventListener('click', function(e) {
     if (!e.target.closest('.upgrade') && !e.target.closest('.rebirth-button')) {
-        incrementClick();
+        incrementClick(e);
         updateUpgradeDisplay();
         updateRebirthButton();
     }

@@ -255,7 +255,7 @@ body.crack-shake {
     50% {
         transform: rotate(180deg) translateX(200px) rotate(180deg);
     }
-    75% {
+    75% {ß
         transform: rotate(270deg) translateX(200px) rotate(270deg);
     }
     100% {
@@ -274,6 +274,28 @@ body.crack-shake {
 @keyframes fall {
     to {
         transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+.falling-text {
+    position: absolute;
+    font-size: 24px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    pointer-events: none;
+    animation: fallText linear forwards;
+    z-index: 10;
+}
+
+@keyframes fallText {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(200px) scale(0.8);
         opacity: 0;
     }
 }
@@ -719,7 +741,7 @@ body.crack-shake {
 }
 .buy-controls {
     display: flex;
-    gap: 10px;
+    gap: 10px; 
     align-items: center;
 }
 .buy-controls input {
