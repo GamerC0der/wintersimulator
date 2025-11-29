@@ -42,6 +42,72 @@ let unlockedAchievements = new Set();
 let activeBuffs = {};
 let buffTimers = {};
 let rebirthMultiplier = 1;
+function saveGame() {
+    const gameState = {
+        clickCount: clickCount,
+        mittenCount: mittenCount,
+        snowmanCount: snowmanCount,
+        hotChocolateCount: hotChocolateCount,
+        gingerbreadCount: gingerbreadCount,
+        gingerbreadHouseCount: gingerbreadHouseCount,
+        snowBankPurchased: snowBankPurchased,
+        gingerbreadCookies: gingerbreadCookies,
+        goldenMittenPurchased: goldenMittenPurchased,
+        goldenSnowmanPurchased: goldenSnowmanPurchased,
+        successfulTradesCount: successfulTradesCount,
+        unlockedAchievements: Array.from(unlockedAchievements),
+        rebirthMultiplier: rebirthMultiplier,
+        sunbreakOverdriveCooldownEndTime: sunbreakOverdriveCooldownEndTime,
+        sunbreakOverdriveActive: sunbreakOverdriveActive,
+        sunbreakOverdriveEndTime: sunbreakOverdriveEndTime,
+        mittenHistory: mittenHistory,
+        activeBuffs: activeBuffs,
+        stockPrice: stockPrice,
+        ownedStocks: ownedStocks,
+        tradingSessionActive: tradingSessionActive,
+        tradingSessionTime: tradingSessionTime,
+        sessionStartTime: sessionStartTime,
+        priceEverOver105: priceEverOver105,
+        previousPrice: previousPrice
+    };
+    localStorage.setItem('wintersimulator_save', JSON.stringify(gameState));
+}
+
+function loadGame() {
+    const savedGame = localStorage.getItem('wintersimulator_save');
+    if (savedGame) {
+        try {
+            const gameState = JSON.parse(savedGame);
+            clickCount = gameState.clickCount || 0;
+            mittenCount = gameState.mittenCount || 0;
+            snowmanCount = gameState.snowmanCount || 0;
+            hotChocolateCount = gameState.hotChocolateCount || 0;
+            gingerbreadCount = gameState.gingerbreadCount || 0;
+            gingerbreadHouseCount = gameState.gingerbreadHouseCount || 0;
+            snowBankPurchased = gameState.snowBankPurchased || false;
+            gingerbreadCookies = gameState.gingerbreadCookies || 0;
+            goldenMittenPurchased = gameState.goldenMittenPurchased || false;
+            goldenSnowmanPurchased = gameState.goldenSnowmanPurchased || false;
+            successfulTradesCount = gameState.successfulTradesCount || 0;
+            unlockedAchievements = new Set(gameState.unlockedAchievements || []);
+            rebirthMultiplier = gameState.rebirthMultiplier || 1;
+            sunbreakOverdriveCooldownEndTime = gameState.sunbreakOverdriveCooldownEndTime || 0;
+            sunbreakOverdriveActive = gameState.sunbreakOverdriveActive || false;
+            sunbreakOverdriveEndTime = gameState.sunbreakOverdriveEndTime || 0;
+            mittenHistory = gameState.mittenHistory || [];
+            activeBuffs = gameState.activeBuffs || {};
+            stockPrice = gameState.stockPrice || 1.00;
+            ownedStocks = gameState.ownedStocks || 0;
+            tradingSessionActive = gameState.tradingSessionActive || false;
+            tradingSessionTime = gameState.tradingSessionTime || 0;
+            sessionStartTime = gameState.sessionStartTime || 0;
+            priceEverOver105 = gameState.priceEverOver105 || false;
+            previousPrice = gameState.previousPrice || 1.00;
+        } catch (e) {
+            console.warn('Failed to load save data:', e);
+        }
+    }
+}
 
 let stockPrice = 1.00;
 let ownedStocks = 0;
@@ -183,6 +249,7 @@ function activateBuff(buffId) {
     }
 
     activeBuffs[buffId] = buff;
+    saveGame();
 
     showAchievement(buff.name, buff.description);
 
@@ -210,6 +277,7 @@ function deactivateBuff(buffId) {
 
     updateAutoClick();
     updateUpgradeDisplay();
+    saveGame();
 }
 
 function getCurrentEarningsMultiplier() {
@@ -350,6 +418,7 @@ function incrementClick(event) {
 
     clickCount += incrementAmount;
     updateCounterDisplay(clickCount);
+    saveGame();
     checkAchievements();
 
     if (event) {
@@ -411,6 +480,7 @@ function updateMittenDisplay() {
         if (mittenHistory.length > 3) {
             mittenHistory.shift();
         }
+        saveGame();
         mitten.className = 'mitten';
         mitten.style.animationDelay = (mittens.length * 0.5) + 's';
         snowballContainer.appendChild(mitten);
@@ -771,6 +841,7 @@ function startTradingSession() {
     stockPrice = 1.00;
     sessionStartTime = Date.now();
     priceEverOver105 = false;
+    saveGame();
 
     updateTradingTimer();
 
@@ -786,6 +857,7 @@ function startTradingSession() {
 
 function stopTradingSession() {
     tradingSessionActive = false;
+    saveGame();
 
     if (stockPriceInterval) {
         clearInterval(stockPriceInterval);
@@ -812,6 +884,7 @@ function companyBankruptcy() {
     showAchievement("Winter Meltdown!", "$SNOW went bankrupt!");
     if (ownedStocks > 0) {
         ownedStocks = 0;
+        saveGame();
         updateStockDisplay();
     }
     stopTradingSession();
@@ -847,6 +920,7 @@ function fluctuateStockPrice() {
         stockPrice /= multiplier;
     }
     stockPrice = Math.max(0.01, stockPrice);
+    saveGame();
 
     updateStockDisplay();
 }
@@ -878,6 +952,7 @@ buyStockButton.addEventListener('click', function(e) {
         clickCount -= buyAmount;
         updateCounterDisplay(clickCount);
         ownedStocks += buyAmount;
+        saveGame();
         showAchievement("Stock Market!", "You bought $SNOW stock!");
         if (!tradingSessionActive && ownedStocks > 0) {
             startTradingSession();
@@ -885,6 +960,7 @@ buyStockButton.addEventListener('click', function(e) {
 
         updateStockDisplay();
         updateUpgradeDisplay();
+        saveGame();
     }
 });
 
@@ -917,9 +993,11 @@ function sellStocks(stocksToSell) {
     updateCounterDisplay(clickCount);
     ownedStocks -= stocksToSell;
     successfulTradesCount++;
+    saveGame();
 
     updateStockDisplay();
     updateUpgradeDisplay();
+    saveGame();
 
     if (ownedStocks === 0) {
         showAchievement("Frosty Fortune!", "You cashed out perfectly before the winter storm!");
@@ -1341,6 +1419,7 @@ function rebirth() {
         updateRebirthButton();
         updateCookiesDisplay();
         updateLeftSidebarVisibility();
+        saveGame();
 
         snowball.classList.remove('crack');
         body.classList.remove('crack-shake');
@@ -1706,6 +1785,7 @@ mittenUpgrade.addEventListener('click', function(e) {
         updateAutoClick();
         updateUpgradeDisplay();
         updateCookiesDisplay();
+        saveGame();
     }
 });
 
@@ -1719,6 +1799,7 @@ snowmanUpgrade.addEventListener('click', function(e) {
         updateAutoClick();
         updateUpgradeDisplay();
         updateCookiesDisplay();
+        saveGame();
     }
 });
 
@@ -1735,6 +1816,7 @@ hotChocolateUpgrade.addEventListener('click', function(e) {
         updateHotChocolateDisplay();
         updateAutoClick();
         updateUpgradeDisplay();
+        saveGame();
     }
 });
 
@@ -1747,6 +1829,7 @@ snowBankUpgrade.addEventListener('click', function(e) {
         updateSnowbankDisplay();
         updateAutoClick();
         updateUpgradeDisplay();
+        saveGame();
     }
 });
 
@@ -1764,6 +1847,7 @@ gingerbreadUpgrade.addEventListener('click', function(e) {
         checkAchievements();
         updateAutoClick();
         updateUpgradeDisplay();
+        saveGame();
     }
 });
 
@@ -1781,6 +1865,7 @@ gingerbreadHouseUpgrade.addEventListener('click', function(e) {
         checkAchievements();
         updateAutoClick();
         updateUpgradeDisplay();
+        saveGame();
     }
 });
 
@@ -1793,6 +1878,7 @@ goldenMittenUpgrade.addEventListener('click', function(e) {
         customCursor.src = 'golden_mitten.png';
         updateCookiesDisplay();
         updateAutoClick();
+        saveGame();
     }
 });
 
@@ -1804,6 +1890,7 @@ goldenSnowmanUpgrade.addEventListener('click', function(e) {
         goldenSnowmanPurchased = true;
         updateCookiesDisplay();
         updateAutoClick();
+        saveGame();
     }
 });
 
@@ -1816,6 +1903,7 @@ randomBuffUpgrade.addEventListener('click', function(e) {
         const selectedBuff = selectRandomBuff();
         activateBuff(selectedBuff);
         updateCookiesDisplay();
+        saveGame();
     }
 });
 
@@ -1829,6 +1917,7 @@ sunbreakOverdriveUpgrade.addEventListener('click', function(e) {
         sunbreakOverdriveCooldownEndTime = currentTime + 30000;
         sunbreakOverdriveActive = true;
         sunbreakOverdriveEndTime = currentTime + 30000;
+        saveGame();
 
         const initialSnowballs = clickCount;
         const snowballLossPerSecond = initialSnowballs * 0.1 / 30;
@@ -1918,6 +2007,7 @@ window.give = function(amount) {
         updateCounterDisplay(clickCount);
         updateCookiesDisplay();
         updateUpgradeDisplay();
+        saveGame();
     }
 };
 
@@ -1932,6 +2022,8 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
+loadGame();
+updateCounterDisplay(clickCount);
 updateUpgradeDisplay();
 updateAchievementsButton();
 updateRebirthButton();
@@ -1949,7 +2041,7 @@ if (snowmanCount > 0 || gingerbreadCount > 0 || gingerbreadHouseCount > 0 || hot
     updateHotChocolateDisplay();
     updateSnowbankDisplay();
 }
-
-// Show start modal
+updateMittenDisplay();
+updateAutoClick();
 startModal.classList.add('visible');
 startModalOverlay.classList.add('visible');
