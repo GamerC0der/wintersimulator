@@ -1,3 +1,8 @@
+@font-face {
+    font-family: 'Santa';
+    src: url('santa.ttf') format('truetype');
+}
+
 * {
     cursor: none !important;
 }
@@ -460,6 +465,7 @@ body.crack-shake {
     display: flex;
 }
 .achievements-popover-header {
+    font-family: 'Santa';
     font-weight: 700;
     font-size: 20px;
     margin-bottom: 16px;
@@ -612,6 +618,7 @@ body.crack-shake {
     display: flex;
 }
 .rebirth-modal-header {
+    font-family: 'Santa';
     font-weight: 700;
     font-size: 24px;
     margin-bottom: 16px;
@@ -697,6 +704,7 @@ body.crack-shake {
     display: flex;
 }
 .trade-modal-header {
+    font-family: 'Santa';
     font-weight: 700;
     font-size: 24px;
     margin-bottom: 16px;
