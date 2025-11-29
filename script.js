@@ -703,6 +703,7 @@ const tradeModal = document.getElementById('trade-modal');
 const tradeModalOverlay = document.getElementById('trade-modal-overlay');
 const startModal = document.getElementById('start-modal');
 const startModalOverlay = document.getElementById('start-modal-overlay');
+const playButton = document.getElementById('play-button');
 const tradeClose = document.getElementById('trade-close');
 
 function showTradeModal() {
@@ -858,6 +859,11 @@ tradeClose.addEventListener('click', function(e) {
 tradeModalOverlay.addEventListener('click', function(e) {
     e.stopPropagation();
     hideTradeModal();
+});
+
+playButton.addEventListener('click', function(e) {
+    startModal.classList.remove('visible');
+    startModalOverlay.classList.remove('visible');
 });
 
 buyAmountInput.addEventListener('input', function(e) {

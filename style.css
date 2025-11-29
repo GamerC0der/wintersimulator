@@ -448,7 +448,7 @@ body.crack-shake {
     color: white;
     font-family: 'Quicksand', sans-serif;
     width: 400px;
-    max-height: 500px;
+    max-height: 700px;
     border-radius: 4px;
     padding: 20px;
     box-sizing: border-box;
@@ -902,4 +902,25 @@ body.crack-shake {
 }
 .start-modal-content {
     min-height: 100px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 42px;
+}
+
+.play-button {
+    display: block;
+    margin: 20px auto 0;
+    padding: 12px 24px;
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 18px;
+    font-family: 'Quicksand', sans-serif;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.play-button:hover {
+    background-color: #1976D2;
 }
