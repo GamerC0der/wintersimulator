@@ -10,11 +10,47 @@ img {
 }
 body {
     background-color: lightblue;
-    margin: 0; 
+    margin: 0;
     padding: 0;
     height: 100vh;
     display: flex;
     overflow: hidden;
+}
+body.sunbreak-active {
+    font-family: 'Bungee Spice', cursive !important;
+}
+
+#overdrive-countdown {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 120px;
+    font-weight: bold;
+    color: #ff6b35;
+    text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.8);
+    z-index: 10000;
+    animation: countdown-pulse 1s infinite;
+}
+
+@keyframes countdown-pulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.1); }
+}
+
+@keyframes sunbreak-font {
+    0% {
+        font-family: 'Quicksand', sans-serif !important;
+    }
+    5% {
+        font-family: 'Bungee Spice', cursive !important;
+    }
+    95% {
+        font-family: 'Bungee Spice', cursive !important;
+    }
+    100% {
+        font-family: 'Quicksand', sans-serif !important;
+    }
 }
 .custom-cursor {
     position: fixed;
@@ -255,7 +291,7 @@ body.crack-shake {
     50% {
         transform: rotate(180deg) translateX(200px) rotate(180deg);
     }
-    75% {ß
+    75% {
         transform: rotate(270deg) translateX(200px) rotate(270deg);
     }
     100% {

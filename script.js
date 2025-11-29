@@ -32,6 +32,9 @@ let autoClickInterval = null;
 let gingerbreadCookies = 0;
 let goldenMittenPurchased = false;
 let goldenSnowmanPurchased = false;
+let sunbreakOverdriveCooldownEndTime = 0;
+let sunbreakOverdriveActive = false;
+let sunbreakOverdriveEndTime = 0;
 let rightClickPressed = false;
 let mittenHistory = [];
 let activeSnowflakes = 0;
@@ -68,7 +71,8 @@ const achievementData = {
     'disappearing': { title: 'Winter Wonderland', description: 'Create 6 snowmen' },
     'house_please': { title: 'Sweet Treats', description: 'Bake your first gingerbread man' },
     'thanks_gingerbread_man': { title: 'Gingerbread Architect', description: 'Build your first gingerbread house' },
-    'rebirths_unlocked': { title: 'Winter Rebirth', description: 'Gather 1000 snowballs to unlock rebirths' }
+    'rebirths_unlocked': { title: 'Winter Rebirth', description: 'Gather 1000 snowballs to unlock rebirths' },
+    'sunbreak_overdrive': { title: 'Sunbreak Overdrive!', description: 'Activated the powerful Sunbreak Overdrive!' }
 };
 
 const buffData = {
@@ -334,7 +338,7 @@ function getGingerbreadHouseCost(count) {
 }
 
 function incrementClick(event) {
-    let incrementAmount = 1;
+    let incrementAmount = sunbreakOverdriveActive ? 50 : 1;
 
     const tapBonus = getCurrentTapBonus();
     if (tapBonus > 0 && event) {
@@ -460,6 +464,24 @@ function showAchievement(title, description) {
             updateAchievementsButton();
         }, 500);
     }, 3000);
+}
+
+function showOverdriveEndCountdown() {
+    const countdownElement = document.createElement('div');
+    countdownElement.id = 'overdrive-countdown';
+    countdownElement.textContent = '5';
+    document.body.appendChild(countdownElement);
+
+    let countdown = 5;
+    const countdownInterval = setInterval(() => {
+        countdown--;
+        if (countdown > 0) {
+            countdownElement.textContent = countdown;
+        } else {
+            clearInterval(countdownInterval);
+            countdownElement.remove();
+        }
+    }, 1000);
 }
 
 function updateAchievementsButton() {
@@ -1124,12 +1146,32 @@ function updateGingerbreadUpgradesDisplay() {
     const randomBuffUpgrade = document.getElementById('random-buff-upgrade');
     const randomBuffCost = document.getElementById('random-buff-cost');
     if (randomBuffUpgrade) {
-        if (gingerbreadCookies >= 5) {
+        const randomBuffCostAmount = sunbreakOverdriveActive ? 3 : 5;
+        if (gingerbreadCookies >= randomBuffCostAmount) {
             randomBuffUpgrade.style.display = '';
             randomBuffUpgrade.classList.remove('disabled');
-            if (randomBuffCost) randomBuffCost.textContent = 'Cost: 5 Gingerbread Cookies';
+            if (randomBuffCost) randomBuffCost.textContent = `Cost: ${randomBuffCostAmount} Gingerbread Cookies`;
         } else {
             randomBuffUpgrade.style.display = 'none';
+        }
+    }
+
+    const sunbreakOverdriveUpgrade = document.getElementById('sunbreak-overdrive-upgrade');
+    const sunbreakOverdriveCost = document.getElementById('sunbreak-overdrive-cost');
+    if (sunbreakOverdriveUpgrade) {
+        if (gingerbreadCookies >= 10) {
+            sunbreakOverdriveUpgrade.style.display = '';
+            const currentTime = Date.now();
+            if (currentTime < sunbreakOverdriveCooldownEndTime) {
+                const remainingTime = Math.ceil((sunbreakOverdriveCooldownEndTime - currentTime) / 1000);
+                sunbreakOverdriveUpgrade.classList.add('disabled');
+                if (sunbreakOverdriveCost) sunbreakOverdriveCost.textContent = `Cooldown: ${remainingTime}s`;
+            } else {
+                sunbreakOverdriveUpgrade.classList.remove('disabled');
+                if (sunbreakOverdriveCost) sunbreakOverdriveCost.textContent = 'Cost: 10 Gingerbread Cookies';
+            }
+        } else {
+            sunbreakOverdriveUpgrade.style.display = 'none';
         }
     }
 }
@@ -1465,7 +1507,7 @@ function createSnowman() {
 }
 
 function updateUpgradeDisplay() {
-    const mittenCost = getMittenCost(mittenCount);
+    const mittenCost = sunbreakOverdriveActive ? 1 : getMittenCost(mittenCount);
     const canAffordMitten = clickCount >= mittenCost;
     const canBuyMoreMittens = mittenCount < maxMittens;
 
@@ -1481,7 +1523,7 @@ function updateUpgradeDisplay() {
         mittenCostElement.textContent = `Cost: ${mittenCost} (Owned: ${mittenCount})`;
     }
 
-    const snowmanCost = getSnowmanCost(snowmanCount);
+    const snowmanCost = sunbreakOverdriveActive ? Math.ceil(getSnowmanCost(snowmanCount) * 0.5) : getSnowmanCost(snowmanCount);
     const canAffordSnowman = clickCount >= snowmanCost;
     const hasMitten = mittenCount >= 1;
     const hasSnowman = snowmanCount >= 1;
@@ -1501,7 +1543,7 @@ function updateUpgradeDisplay() {
     if (hasMitten) {
         gingerbreadUpgrade.style.display = '';
 
-        const gingerbreadCost = getGingerbreadCost(gingerbreadCount);
+        const gingerbreadCost = sunbreakOverdriveActive ? Math.ceil(getGingerbreadCost(gingerbreadCount) * 0.75) : getGingerbreadCost(gingerbreadCount);
         const canAffordGingerbread = clickCount >= gingerbreadCost;
 
         if (!canAffordGingerbread || !hasSnowman) {
@@ -1525,7 +1567,7 @@ function updateUpgradeDisplay() {
     if (hasSnowman) {
         gingerbreadHouseUpgrade.style.display = '';
 
-        const gingerbreadHouseCost = getGingerbreadHouseCost(gingerbreadHouseCount);
+        const gingerbreadHouseCost = sunbreakOverdriveActive ? Math.ceil(getGingerbreadHouseCost(gingerbreadHouseCount) * 0.5) : getGingerbreadHouseCost(gingerbreadHouseCount);
         const canAffordGingerbreadHouse = clickCount >= gingerbreadHouseCost;
 
         if (!canAffordGingerbreadHouse) {
@@ -1548,7 +1590,7 @@ function updateUpgradeDisplay() {
     if (hasGingerbreadHouse) {
         hotChocolateUpgrade.style.display = '';
 
-        const hotChocolateCost = getHotChocolateCost(hotChocolateCount);
+        const hotChocolateCost = sunbreakOverdriveActive ? Math.ceil(getHotChocolateCost(hotChocolateCount) * 0.9) : getHotChocolateCost(hotChocolateCount);
         const canAffordHotChocolate = clickCount >= hotChocolateCost;
 
         if (!canAffordHotChocolate) {
@@ -1571,7 +1613,8 @@ function updateUpgradeDisplay() {
     if (hasHotChocolate) {
         snowBankUpgrade.style.display = '';
 
-        const canAffordSnowBank = clickCount >= snowBankCost;
+        const snowBankCostDiscounted = sunbreakOverdriveActive ? Math.ceil(snowBankCost * 0.75) : snowBankCost;
+        const canAffordSnowBank = clickCount >= snowBankCostDiscounted;
         const hasHotChocolateCup = hotChocolateCount >= 1;
 
         if (!canAffordSnowBank || !hasHotChocolateCup || snowBankPurchased) {
@@ -1586,7 +1629,7 @@ function updateUpgradeDisplay() {
         } else if (!hasHotChocolateCup) {
             snowBankCostElement.textContent = 'Grab a hot chocolate first!';
         } else {
-            snowBankCostElement.textContent = `Cost: ${snowBankCost} - 500 CPS`;
+            snowBankCostElement.textContent = `Cost: ${snowBankCostDiscounted} - 500 CPS`;
         }
     } else {
         snowBankUpgrade.style.display = 'none';
@@ -1707,11 +1750,66 @@ goldenSnowmanUpgrade.addEventListener('click', function(e) {
 const randomBuffUpgrade = document.getElementById('random-buff-upgrade');
 randomBuffUpgrade.addEventListener('click', function(e) {
     e.stopPropagation();
-    if (gingerbreadCookies >= 5) {
-        gingerbreadCookies -= 5;
+    const cost = sunbreakOverdriveActive ? 3 : 5;
+    if (gingerbreadCookies >= cost) {
+        gingerbreadCookies -= cost;
         const selectedBuff = selectRandomBuff();
         activateBuff(selectedBuff);
         updateCookiesDisplay();
+    }
+});
+
+const sunbreakOverdriveUpgrade = document.getElementById('sunbreak-overdrive-upgrade');
+sunbreakOverdriveUpgrade.addEventListener('click', function(e) {
+    e.stopPropagation();
+    const currentTime = Date.now();
+    if (currentTime >= sunbreakOverdriveCooldownEndTime && gingerbreadCookies >= 10) {
+        console.log('Sunbreak Overdrive activated!');
+        gingerbreadCookies -= 10;
+        sunbreakOverdriveCooldownEndTime = currentTime + 30000;
+        sunbreakOverdriveActive = true;
+        sunbreakOverdriveEndTime = currentTime + 30000;
+
+        const initialSnowballs = clickCount;
+        const snowballLossPerSecond = initialSnowballs * 0.1 / 30;
+
+        const snowballLossInterval = setInterval(() => {
+            if (!sunbreakOverdriveActive) {
+                clearInterval(snowballLossInterval);
+                return;
+            }
+            clickCount = Math.max(0, clickCount - snowballLossPerSecond);
+            updateCounterDisplay(clickCount);
+        }, 1000);
+
+        document.body.classList.add('sunbreak-active');
+        updateCookiesDisplay();
+        updateUpgradeDisplay();
+
+        if (!unlockedAchievements.has('sunbreak_overdrive')) {
+            unlockedAchievements.add('sunbreak_overdrive');
+            showAchievement('Sunbreak Overdrive!', 'Activated the powerful Sunbreak Overdrive!');
+        }
+
+        const updateCooldown = () => {
+            const now = Date.now();
+            if (now < sunbreakOverdriveCooldownEndTime) {
+                updateGingerbreadUpgradesDisplay();
+                updateUpgradeDisplay();
+                setTimeout(updateCooldown, 1000);
+            } else {
+                updateGingerbreadUpgradesDisplay();
+                updateUpgradeDisplay();
+            }
+        };
+        setTimeout(updateCooldown, 1000);
+
+        setTimeout(() => {
+            sunbreakOverdriveActive = false;
+            document.body.classList.remove('sunbreak-active');
+            updateUpgradeDisplay();
+            showOverdriveEndCountdown();
+        }, 30000);
     }
 });
 
