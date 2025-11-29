@@ -337,7 +337,7 @@ function incrementClick(event) {
     let incrementAmount = 1;
 
     const tapBonus = getCurrentTapBonus();
-    if (tapBonus > 0) {
+    if (tapBonus > 0 && event) {
         incrementAmount = tapBonus;
     }
 
@@ -348,7 +348,9 @@ function incrementClick(event) {
     updateCounterDisplay(clickCount);
     checkAchievements();
 
-    showFallingText(incrementAmount, event);
+    if (event) {
+        showFallingText(incrementAmount, event);
+    }
 
     if (activeSnowflakes < 50) {
         activeSnowflakes++;
@@ -534,6 +536,12 @@ const rebirthModal = document.getElementById('rebirth-modal');
 const rebirthModalOverlay = document.getElementById('rebirth-modal-overlay');
 const rebirthCancel = document.getElementById('rebirth-cancel');
 const rebirthConfirm = document.getElementById('rebirth-confirm');
+const rebirthHighValueModal = document.getElementById('rebirth-high-value-modal');
+const rebirthHighValueModalOverlay = document.getElementById('rebirth-high-value-modal-overlay');
+const rebirthHighValueCancel = document.getElementById('rebirth-high-value-cancel');
+const rebirthHighValueConfirm = document.getElementById('rebirth-high-value-confirm');
+const autoConfirmTimer = document.getElementById('auto-confirm-timer');
+let autoConfirmTimeout = null;
 
 function showRebirthModal() {
     rebirthModal.classList.add('visible');
@@ -543,6 +551,31 @@ function showRebirthModal() {
 function hideRebirthModal() {
     rebirthModal.classList.remove('visible');
     rebirthModalOverlay.classList.remove('visible');
+}
+
+function showRebirthHighValueModal() {
+    rebirthHighValueModal.classList.add('visible');
+    rebirthHighValueModalOverlay.classList.add('visible');
+    autoConfirmTimer.textContent = '5';
+
+    let countdown = 5;
+    autoConfirmTimeout = setInterval(() => {
+        countdown--;
+        autoConfirmTimer.textContent = countdown;
+        if (countdown <= 0) {
+            clearInterval(autoConfirmTimeout);
+            performRebirth();
+        }
+    }, 1000);
+}
+
+function hideRebirthHighValueModal() {
+    rebirthHighValueModal.classList.remove('visible');
+    rebirthHighValueModalOverlay.classList.remove('visible');
+    if (autoConfirmTimeout) {
+        clearInterval(autoConfirmTimeout);
+        autoConfirmTimeout = null;
+    }
 }
 
 rebirthButton.addEventListener('click', function(e) {
@@ -557,13 +590,41 @@ rebirthCancel.addEventListener('click', function(e) {
 
 rebirthConfirm.addEventListener('click', function(e) {
     e.stopPropagation();
-    rebirth();
     hideRebirthModal();
+    if (clickCount >= 100000) {
+        showRebirthHighValueModal();
+    } else {
+        performRebirth();
+    }
 });
 
 rebirthModalOverlay.addEventListener('click', function(e) {
     e.stopPropagation();
     hideRebirthModal();
+});
+
+function performRebirth() {
+    rebirth();
+    hideRebirthHighValueModal();
+}
+
+rebirthHighValueCancel.addEventListener('click', function(e) {
+    e.stopPropagation();
+    hideRebirthHighValueModal();
+});
+
+rebirthHighValueConfirm.addEventListener('click', function(e) {
+    e.stopPropagation();
+    if (autoConfirmTimeout) {
+        clearInterval(autoConfirmTimeout);
+        autoConfirmTimeout = null;
+    }
+    performRebirth();
+});
+
+rebirthHighValueModalOverlay.addEventListener('click', function(e) {
+    e.stopPropagation();
+    hideRebirthHighValueModal();
 });
 
 const tradeModal = document.getElementById('trade-modal');

@@ -10,7 +10,7 @@ img {
 }
 body {
     background-color: lightblue;
-    margin: 0;
+    margin: 0; 
     padding: 0;
     height: 100vh;
     display: flex;
