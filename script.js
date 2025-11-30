@@ -42,7 +42,7 @@ let activeSnowflakes = 0;
 let unlockedAchievements = new Set();
 let activeBuffs = {};
 let buffTimers = {};
-let rebirthMultiplier = 1;
+let rebirthMultiplier = 1; 
 function saveGame() {
     const gameState = {
         clickCount: clickCount,
@@ -107,7 +107,6 @@ function loadGame() {
             priceEverOver105 = gameState.priceEverOver105 || false;
             previousPrice = gameState.previousPrice || 1.00;
         } catch (e) {
-            console.warn('Failed to load save data:', e);
         }
     }
 }
@@ -2044,7 +2043,6 @@ sunbreakOverdriveUpgrade.addEventListener('click', function(e) {
     e.stopPropagation();
     const currentTime = Date.now();
     if (currentTime >= sunbreakOverdriveCooldownEndTime && gingerbreadCookies >= 10) {
-        console.log('Sunbreak Overdrive activated!');
         gingerbreadCookies -= 10;
         sunbreakOverdriveCooldownEndTime = currentTime + 30000;
         sunbreakOverdriveActive = true;
@@ -2175,5 +2173,9 @@ if (snowmanCount > 0 || gingerbreadCount > 0 || gingerbreadHouseCount > 0 || hot
 }
 updateMittenDisplay();
 updateAutoClick();
-startModal.classList.add('visible');
-startModalOverlay.classList.add('visible');
+
+const savedGame = localStorage.getItem('wintersimulator_save');
+if (!savedGame) {
+    startModal.classList.add('visible');
+    startModalOverlay.classList.add('visible');
+}
