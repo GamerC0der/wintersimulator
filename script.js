@@ -39,6 +39,9 @@ let rebirthStartTime = 0;
 let rightClickPressed = false;
 let mittenHistory = [];
 let activeSnowflakes = 0;
+let snowflakes = [];
+let snowCanvas, snowCtx;
+let snowflakeImage;
 let unlockedAchievements = new Set();
 let activeBuffs = {};
 let buffTimers = {};
@@ -428,25 +431,22 @@ function incrementClick(event) {
         showFallingText(incrementAmount, event);
     }
 
-    if (activeSnowflakes < 50) {
+    if (activeSnowflakes < 250) {
         activeSnowflakes++;
-        const snowflake = document.createElement('img');
-        snowflake.src = 'snowflake.webp';
-        snowflake.className = 'snowflake';
-        snowflake.setAttribute('draggable', 'false');
         const leftSidebarWidth = 600;
         const rightSidebarWidth = 300;
         const minX = leftSidebarWidth;
         const maxX = window.innerWidth - rightSidebarWidth - 120;
-        snowflake.style.left = Math.random() * (maxX - minX) + minX + 'px';
-        snowflake.style.top = '-120px';
-        snowflake.style.animationDuration = (Math.random() * 2 + 1) + 's';
-        document.body.appendChild(snowflake);
 
-        setTimeout(() => {
-            snowflake.remove();
-            activeSnowflakes--;
-        }, 3000);
+        const snowflake = {
+            x: Math.random() * (maxX - minX) + minX,
+            y: -120,
+            speed: 150 + Math.random() * 200,
+            rotation: 0,
+            rotationSpeed: (Math.random() - 0.5) * 2
+        };
+
+        snowflakes.push(snowflake);
     }
 }
 
@@ -1424,7 +1424,7 @@ function updateGingerbreadUpgradesDisplay() {
     if (sunbreakOverdriveUpgrade) {
         const currentTime = Date.now();
         const timeSinceRebirth = currentTime - rebirthStartTime;
-        const canShowSunbreakOverdrive = gingerbreadCookies >= 10 && timeSinceRebirth >= 30000; // 30 seconds
+        const canShowSunbreakOverdrive = gingerbreadCookies >= 10 && timeSinceRebirth >= 30000;
 
         if (canShowSunbreakOverdrive) {
             sunbreakOverdriveUpgrade.style.display = '';
@@ -1563,6 +1563,36 @@ function createMitten() {
     mittenCount++;
     updateMittenDisplay();
     checkAchievements();
+}
+
+let lastTime = 0;
+
+function animateSnowflakes(currentTime = 0) {
+    const deltaTime = currentTime - lastTime;
+    lastTime = currentTime;
+
+    snowCtx.clearRect(0, 0, snowCanvas.width, snowCanvas.height);
+
+    for (let i = snowflakes.length - 1; i >= 0; i--) {
+        const flake = snowflakes[i];
+
+        flake.y += flake.speed * (deltaTime / 1000);
+        flake.rotation += flake.rotationSpeed * (deltaTime / 1000);
+
+        if (flake.y > window.innerHeight + 120) {
+            snowflakes.splice(i, 1);
+            activeSnowflakes--;
+            continue;
+        }
+
+        snowCtx.save();
+        snowCtx.translate(flake.x + 30, flake.y + 30);
+        snowCtx.rotate(flake.rotation);
+        snowCtx.drawImage(snowflakeImage, -30, -30, 60, 60);
+        snowCtx.restore();
+    }
+
+    requestAnimationFrame(animateSnowflakes);
 }
 
 let animatedCounter = 0;
@@ -2171,6 +2201,24 @@ if (snowmanCount > 0 || gingerbreadCount > 0 || gingerbreadHouseCount > 0 || hot
     updateHotChocolateDisplay();
     updateSnowbankDisplay();
 }
+
+snowCanvas = document.getElementById('snow-canvas');
+snowCtx = snowCanvas.getContext('2d');
+
+function resizeCanvas() {
+    snowCanvas.width = window.innerWidth;
+    snowCanvas.height = window.innerHeight;
+}
+
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+snowflakeImage = new Image();
+snowflakeImage.src = 'snowflake.webp';
+snowflakeImage.onload = function() {
+    animateSnowflakes();
+};
+
 updateMittenDisplay();
 updateAutoClick();
 

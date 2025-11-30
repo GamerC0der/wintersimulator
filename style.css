@@ -304,12 +304,11 @@ body.crack-shake {
     }
 }
 
-.snowflake {
-    position: absolute;
-    width: 120px;
-    height: 120px;
+#snow-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
     pointer-events: none;
-    animation: fall linear forwards;
     z-index: 0;
 }
 @keyframes fall {
