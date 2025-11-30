@@ -685,6 +685,14 @@ const rebirthHighValueConfirm = document.getElementById('rebirth-high-value-conf
 const autoConfirmTimer = document.getElementById('auto-confirm-timer');
 let autoConfirmTimeout = null;
 
+const resetButton = document.getElementById('reset-button');
+const resetModal = document.getElementById('reset-modal');
+const resetModalOverlay = document.getElementById('reset-modal-overlay');
+const resetCancel = document.getElementById('reset-cancel');
+const resetConfirm = document.getElementById('reset-confirm');
+const resetAutoConfirmTimer = document.getElementById('reset-auto-confirm-timer');
+let resetAutoConfirmTimeout = null;
+
 function showRebirthModal() {
     rebirthModal.classList.add('visible');
     rebirthModalOverlay.classList.add('visible');
@@ -768,6 +776,121 @@ rebirthHighValueModalOverlay.addEventListener('click', function(e) {
     e.stopPropagation();
     hideRebirthHighValueModal();
 });
+
+resetButton.addEventListener('click', function(e) {
+    e.stopPropagation();
+    showResetModal();
+});
+
+resetCancel.addEventListener('click', function(e) {
+    e.stopPropagation();
+    hideResetModal();
+});
+
+resetConfirm.addEventListener('click', function(e) {
+    e.stopPropagation();
+    if (resetAutoConfirmTimeout) {
+        clearInterval(resetAutoConfirmTimeout);
+        resetAutoConfirmTimeout = null;
+    }
+    performReset();
+});
+
+resetModalOverlay.addEventListener('click', function(e) {
+    e.stopPropagation();
+    hideResetModal();
+});
+
+function showResetModal() {
+    resetModal.classList.add('visible');
+    resetModalOverlay.classList.add('visible');
+    resetAutoConfirmTimer.textContent = '10';
+
+    let countdown = 10;
+    resetAutoConfirmTimeout = setInterval(() => {
+        countdown--;
+        resetAutoConfirmTimer.textContent = countdown;
+        if (countdown <= 0) {
+            clearInterval(resetAutoConfirmTimeout);
+            performReset();
+        }
+    }, 1000);
+}
+
+function hideResetModal() {
+    resetModal.classList.remove('visible');
+    resetModalOverlay.classList.remove('visible');
+    if (resetAutoConfirmTimeout) {
+        clearInterval(resetAutoConfirmTimeout);
+        resetAutoConfirmTimeout = null;
+    }
+}
+
+function performReset() {
+    localStorage.removeItem('wintersimulator_save');
+
+    clickCount = 0;
+    mittenCount = 0;
+    snowmanCount = 0;
+    hotChocolateCount = 0;
+    gingerbreadCount = 0;
+    gingerbreadHouseCount = 0;
+    snowBankPurchased = false;
+    gingerbreadCookies = 0;
+    goldenMittenPurchased = false;
+    goldenSnowmanPurchased = false;
+    successfulTradesCount = 0;
+    unlockedAchievements = new Set();
+    rebirthMultiplier = 1;
+    sunbreakOverdriveCooldownEndTime = 0;
+    sunbreakOverdriveActive = false;
+    sunbreakOverdriveEndTime = 0;
+    mittenHistory = [];
+    activeBuffs = {};
+    stockPrice = 1.00;
+    ownedStocks = 0;
+    tradingSessionActive = false;
+    tradingSessionTime = 0;
+    sessionStartTime = 0;
+    priceEverOver105 = false;
+    previousPrice = 1.00;
+
+    for (const timerId in buffTimers) {
+        clearTimeout(buffTimers[timerId]);
+    }
+    buffTimers = {};
+
+    if (autoClickInterval) {
+        clearInterval(autoClickInterval);
+        autoClickInterval = null;
+    }
+
+    if (stockPriceInterval) {
+        clearInterval(stockPriceInterval);
+        stockPriceInterval = null;
+    }
+
+    if (tradingSessionInterval) {
+        clearInterval(tradingSessionInterval);
+        tradingSessionInterval = null;
+    }
+
+    updateCounterDisplay(clickCount);
+    updateMittenDisplay();
+    updateSnowmanDisplay();
+    updateGingerbreadDisplay();
+    updateGingerbreadHouseDisplay();
+    updateHotChocolateDisplay();
+    updateSnowbankDisplay();
+    updateUpgradeDisplay();
+    updateAutoClick();
+    updateRebirthButton();
+    updateCookiesDisplay();
+    updateLeftSidebarVisibility();
+
+    hideResetModal();
+    location.reload();
+}
 
 const tradeModal = document.getElementById('trade-modal');
 const tradeModalOverlay = document.getElementById('trade-modal-overlay');

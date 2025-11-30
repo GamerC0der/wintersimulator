@@ -123,6 +123,7 @@
     <div class="crack-particles" id="crack-particles"></div>
     <button class="achievements-button" id="achievements-button">Achievements</button>
     <button class="rebirth-button" id="rebirth-button">Rebirth</button>
+    <button class="reset-button" id="reset-button">Reset</button>
     <div class="rebirth-modal-overlay" id="rebirth-modal-overlay"></div>
     <div class="rebirth-modal" id="rebirth-modal">
         <div class="rebirth-modal-header">Rebirth</div>
@@ -144,6 +145,18 @@
         <div class="rebirth-modal-actions">
             <button class="rebirth-modal-button" id="rebirth-high-value-cancel">Cancel</button>
             <button class="rebirth-modal-button confirm" id="rebirth-high-value-confirm">Rebirth Now</button>
+        </div>
+    </div>
+    <div class="reset-modal-overlay" id="reset-modal-overlay"></div>
+    <div class="reset-modal" id="reset-modal">
+        <div class="reset-modal-header">Factory Reset</div>
+        <div class="reset-modal-content">
+            This will permanently delete ALL your progress, achievements, and saved data.<br>
+            Auto-confirming in <span id="reset-auto-confirm-timer">10</span> seconds...
+        </div>
+        <div class="reset-modal-actions">
+            <button class="reset-modal-button" id="reset-cancel">Cancel</button>
+            <button class="reset-modal-button confirm" id="reset-confirm">Reset Now</button>
         </div>
     </div>
     <div class="trade-modal-overlay" id="trade-modal-overlay"></div>
