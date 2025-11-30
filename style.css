@@ -540,7 +540,7 @@ body.crack-shake {
 .reset-button {
     position: fixed;
     bottom: 20px;
-    right: 140px;
+    right: 160px;
     z-index: 10001;
     background-color: #ff4444;
     color: white;
@@ -553,6 +553,12 @@ body.crack-shake {
     pointer-events: auto;
     display: block;
 }
+.rebirth-button svg,
+.reset-button svg {
+    margin-right: 8px;
+    margin-bottom: 2px;
+    vertical-align: middle;
+}
 .cookies-display {
     background-color: black;
     color: white;
@@ -563,7 +569,7 @@ body.crack-shake {
     pointer-events: auto;
     display: none;
     margin-top: auto;
-}
+}ß
 .cookies-display.visible {
     display: block;
 }
@@ -628,6 +634,8 @@ body.crack-shake {
     display: none;
     flex-direction: column;
     pointer-events: auto;
+    margin: 0;
+    border: none;
 }
 .rebirth-modal.visible {
     display: flex;
@@ -700,6 +708,8 @@ body.crack-shake {
     display: none;
     flex-direction: column;
     pointer-events: auto;
+    margin: 0;
+    border: none;
 }
 .reset-modal.visible {
     display: flex;
@@ -786,6 +796,8 @@ body.crack-shake {
     display: none;
     flex-direction: column;
     pointer-events: auto;
+    margin: 0;
+    border: none;
 }
 .trade-modal.visible {
     display: flex;
@@ -991,6 +1003,8 @@ body.crack-shake {
     display: none;
     flex-direction: column;
     pointer-events: auto;
+    margin: 0;
+    border: none;
 }
 .start-modal.visible {
     display: flex;
