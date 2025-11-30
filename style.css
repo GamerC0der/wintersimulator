@@ -43,20 +43,6 @@ body.sunbreak-active {
     50% { transform: translate(-50%, -50%) scale(1.1); }
 }
 
-@keyframes sunbreak-font {
-    0% {
-        font-family: 'Quicksand', sans-serif !important;
-    }
-    5% {
-        font-family: 'Bungee Spice', cursive !important;
-    }
-    95% {
-        font-family: 'Bungee Spice', cursive !important;
-    }
-    100% {
-        font-family: 'Quicksand', sans-serif !important;
-    }
-}
 .custom-cursor {
     position: fixed;
     width: 68px;
@@ -310,12 +296,6 @@ body.crack-shake {
     left: 0;
     pointer-events: none;
     z-index: 0;
-}
-@keyframes fall {
-    to {
-        transform: translateY(100vh) rotate(360deg);
-        opacity: 0;
-    }
 }
 
 .falling-text {
@@ -917,7 +897,7 @@ body.crack-shake {
 .buy-controls input::placeholder {
     color: rgba(255, 255, 255, 0.5);
 }
-.buy-button, .sell-button {
+.buy-button {
     background-color: rgba(255, 255, 255, 0.1);
     color: white;
     font-family: 'Quicksand', sans-serif;
@@ -929,11 +909,11 @@ body.crack-shake {
     transition: all 0.2s;
     min-width: 100px;
 }
-.buy-button:hover:not(:disabled), .sell-button:hover:not(:disabled) {
+.buy-button:hover:not(:disabled) {
     background-color: rgba(255, 255, 255, 0.2);
     transform: translateY(-2px);
 }
-.buy-button:disabled, .sell-button:disabled {
+.buy-button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
     transform: none;
