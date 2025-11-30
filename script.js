@@ -35,6 +35,7 @@ let goldenSnowmanPurchased = false;
 let sunbreakOverdriveCooldownEndTime = 0;
 let sunbreakOverdriveActive = false;
 let sunbreakOverdriveEndTime = 0;
+let rebirthStartTime = 0;
 let rightClickPressed = false;
 let mittenHistory = [];
 let activeSnowflakes = 0;
@@ -60,6 +61,7 @@ function saveGame() {
         sunbreakOverdriveCooldownEndTime: sunbreakOverdriveCooldownEndTime,
         sunbreakOverdriveActive: sunbreakOverdriveActive,
         sunbreakOverdriveEndTime: sunbreakOverdriveEndTime,
+        rebirthStartTime: rebirthStartTime,
         mittenHistory: mittenHistory,
         activeBuffs: activeBuffs,
         stockPrice: stockPrice,
@@ -94,6 +96,7 @@ function loadGame() {
             sunbreakOverdriveCooldownEndTime = gameState.sunbreakOverdriveCooldownEndTime || 0;
             sunbreakOverdriveActive = gameState.sunbreakOverdriveActive || false;
             sunbreakOverdriveEndTime = gameState.sunbreakOverdriveEndTime || 0;
+            rebirthStartTime = gameState.rebirthStartTime || 0;
             mittenHistory = gameState.mittenHistory || [];
             activeBuffs = gameState.activeBuffs || {};
             stockPrice = gameState.stockPrice || 1.00;
@@ -846,6 +849,7 @@ function performReset() {
     sunbreakOverdriveCooldownEndTime = 0;
     sunbreakOverdriveActive = false;
     sunbreakOverdriveEndTime = 0;
+    rebirthStartTime = 0;
     mittenHistory = [];
     activeBuffs = {};
     stockPrice = 1.00;
@@ -1419,9 +1423,12 @@ function updateGingerbreadUpgradesDisplay() {
     const sunbreakOverdriveUpgrade = document.getElementById('sunbreak-overdrive-upgrade');
     const sunbreakOverdriveCost = document.getElementById('sunbreak-overdrive-cost');
     if (sunbreakOverdriveUpgrade) {
-        if (gingerbreadCookies >= 10) {
+        const currentTime = Date.now();
+        const timeSinceRebirth = currentTime - rebirthStartTime;
+        const canShowSunbreakOverdrive = gingerbreadCookies >= 10 && timeSinceRebirth >= 30000; // 30 seconds
+
+        if (canShowSunbreakOverdrive) {
             sunbreakOverdriveUpgrade.style.display = '';
-            const currentTime = Date.now();
             if (currentTime < sunbreakOverdriveCooldownEndTime) {
                 const remainingTime = Math.ceil((sunbreakOverdriveCooldownEndTime - currentTime) / 1000);
                 sunbreakOverdriveUpgrade.classList.add('disabled');
@@ -1507,6 +1514,7 @@ function rebirth() {
     rebirthMultiplier = 1;
 
     setTimeout(() => {
+        rebirthStartTime = Date.now();
         clickCount = 0;
         mittenCount = 0;
         snowmanCount = 0;
