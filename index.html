@@ -11,45 +11,45 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="left-sidebar">
-        <div class="snowman-section">
-            <div class="snowman-section-title">Snowmen</div>
+    <aside class="left-sidebar">
+        <section class="snowman-section">
+            <header class="snowman-section-title">Snowmen</header>
             <div class="snowmen-container" id="snowmen-container">
             </div>
-        </div>
-        <div class="snowman-section" id="gingerbread-section" style="display: none;">
-            <div class="snowman-section-title">Gingerbread Men</div> 
+        </section>
+        <section class="snowman-section" id="gingerbread-section" style="display: none;">
+            <header class="snowman-section-title">Gingerbread Men</header>
             <div class="snowmen-container" id="gingerbread-container">
             </div>
-        </div>
-        <div class="snowman-section" id="gingerbreadhouse-section" style="display: none;">
-            <div class="snowman-section-title">Gingerbread Houses</div>
+        </section>
+        <section class="snowman-section" id="gingerbreadhouse-section" style="display: none;">
+            <header class="snowman-section-title">Gingerbread Houses</header>
             <div class="snowmen-container" id="gingerbreadhouse-container">
             </div>
-        </div>
-        <div class="snowman-section" id="hotchocolate-section" style="display: none;">
-            <div class="snowman-section-title">Hot Chocolate Cups</div>
+        </section>
+        <section class="snowman-section" id="hotchocolate-section" style="display: none;">
+            <header class="snowman-section-title">Hot Chocolate Cups</header>
             <div class="snowmen-container" id="hotchocolate-container">
             </div>
-        </div>
-        <div class="snowman-section" id="snowbank-section" style="display: none;">
-            <div class="snowman-section-title">Snow Bank</div>
+        </section>
+        <section class="snowman-section" id="snowbank-section" style="display: none;">
+            <header class="snowman-section-title">Snow Bank</header>
             <div class="snowmen-container" id="snowbank-container">
             </div>
             <button class="trade-button" id="trade-button" style="display: none;">Tap to Trade</button>
-        </div>
-        <div class="cookies-display" id="cookies-display">
-            <div class="cookies-display-title">Gingerbread Cookies:</div>
+        </section>
+        <section class="cookies-display" id="cookies-display">
+            <header class="cookies-display-title">Gingerbread Cookies:</header>
             <div class="cookies-display-count" id="cookies-count">0</div>
-        </div>
-    </div>
-    <div class="main-content">
+        </section>
+    </aside>
+    <main class="main-content">
         <div class="counter" id="counter">0</div>
         <div style="position: relative; display: inline-block;" id="snowball-container">
             <img src="snow.png" alt="Snowball" class="snowball">
         </div>
-    </div>
-    <div class="right-sidebar">
+    </main>
+    <aside class="right-sidebar">
         <input type="text" class="upgrades-search" id="upgrades-search" placeholder="Search upgrades..." style="display: none;">
         <div class="upgrades">
             <div class="upgrade" id="mitten-upgrade">
@@ -125,44 +125,44 @@
     <button class="rebirth-button" id="rebirth-button">Rebirth</button>
     <button class="reset-button" id="reset-button">Reset</button>
     <div class="rebirth-modal-overlay" id="rebirth-modal-overlay"></div>
-    <div class="rebirth-modal" id="rebirth-modal">
-        <div class="rebirth-modal-header">Rebirth</div>
-        <div class="rebirth-modal-content">
+    <dialog class="rebirth-modal" id="rebirth-modal">
+        <header class="rebirth-modal-header">Rebirth</header>
+        <section class="rebirth-modal-content">
             You will lose all snow and upgrades but earn gingerbread cookies.
-        </div>
-        <div class="rebirth-modal-actions">
+        </section>
+        <footer class="rebirth-modal-actions">
             <button class="rebirth-modal-button" id="rebirth-cancel">Cancel</button>
             <button class="rebirth-modal-button confirm" id="rebirth-confirm">Rebirth</button>
-        </div>
-    </div>
+        </footer>
+    </dialog>
     <div class="rebirth-modal-overlay" id="rebirth-high-value-modal-overlay"></div>
-    <div class="rebirth-modal" id="rebirth-high-value-modal">
-        <div class="rebirth-modal-header">Rebirth Confirmation</div>
-        <div class="rebirth-modal-content">
+    <dialog class="rebirth-modal" id="rebirth-high-value-modal">
+        <header class="rebirth-modal-header">Rebirth Confirmation</header>
+        <section class="rebirth-modal-content">
             You will lose all snow and upgrades but earn gingerbread cookies.<br>
             Auto-confirming in <span id="auto-confirm-timer">5</span> seconds...
-        </div>
-        <div class="rebirth-modal-actions">
+        </section>
+        <footer class="rebirth-modal-actions">
             <button class="rebirth-modal-button" id="rebirth-high-value-cancel">Cancel</button>
             <button class="rebirth-modal-button confirm" id="rebirth-high-value-confirm">Rebirth Now</button>
-        </div>
-    </div>
+        </footer>
+    </dialog>
     <div class="reset-modal-overlay" id="reset-modal-overlay"></div>
-    <div class="reset-modal" id="reset-modal">
-        <div class="reset-modal-header">Factory Reset</div>
-        <div class="reset-modal-content">
+    <dialog class="reset-modal" id="reset-modal">
+        <header class="reset-modal-header">Factory Reset</header>
+        <section class="reset-modal-content">
             This will permanently delete ALL your progress, achievements, and saved data.<br>
             Auto-confirming in <span id="reset-auto-confirm-timer">10</span> seconds...
-        </div>
-        <div class="reset-modal-actions">
+        </section>
+        <footer class="reset-modal-actions">
             <button class="reset-modal-button" id="reset-cancel">Cancel</button>
             <button class="reset-modal-button confirm" id="reset-confirm">Reset Now</button>
-        </div>
-    </div>
+        </footer>
+    </dialog>
     <div class="trade-modal-overlay" id="trade-modal-overlay"></div>
-    <div class="trade-modal" id="trade-modal">
-        <div class="trade-modal-header">$SNOW Stock Exchange</div>
-        <div class="trade-modal-content">
+    <dialog class="trade-modal" id="trade-modal">
+        <header class="trade-modal-header">$SNOW Stock Exchange</header>
+        <section class="trade-modal-content">
             <div class="stock-price" id="stock-price">$1.00<span id="price-change" class="price-change"></span></div>
             <div class="stock-info">
                 <div class="stock-owned">Owned: <span id="owned-stocks">0</span></div>
@@ -180,23 +180,23 @@
                 <button class="sell-option" id="sell-50">Sell 50%</button>
                 <button class="sell-option" id="sell-100">Sell 100%</button>
             </div>
-        </div>
-        <div class="trade-modal-actions">
+        </section>
+        <footer class="trade-modal-actions">
             <button class="trade-modal-button" id="trade-close">Close</button>
-        </div>
-    </div>
-    <div class="achievements-popover" id="achievements-popover">
-        <div class="achievements-popover-header">Achievements</div>
-        <input type="text" class="achievements-search" id="achievements-search" placeholder="Search achievemnts...">
-        <div class="achievements-list" id="achievements-list"></div>
-    </div>
+        </footer>
+    </dialog>
+    <dialog class="achievements-popover" id="achievements-popover">
+        <header class="achievements-popover-header">Achievements</header>
+        <input type="text" class="achievements-search" id="achievements-search" placeholder="Search achievements...">
+        <section class="achievements-list" id="achievements-list"></section>
+    </dialog>
     <div class="start-modal-overlay" id="start-modal-overlay"></div>
-    <div class="start-modal" id="start-modal">
-        <div class="start-modal-content">
+    <dialog class="start-modal" id="start-modal">
+        <section class="start-modal-content">
             Winter Simulator
             <button class="play-button" id="play-button">Play</button>
-        </div>
-    </div>
+        </section>
+    </dialog>
     <canvas id="snow-canvas" width="1920" height="1080"></canvas>
     <script src="script.js"></script>
 </body>
