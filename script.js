@@ -216,6 +216,7 @@ const buffData = {
     },
     'ultra_snowman_bonus': {
         name: 'Arctic Power',
+
         description: 'Snowmen produce triple earnings for 3 minutes!',
         duration: 180000,
         probability: 4,
